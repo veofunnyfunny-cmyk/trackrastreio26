@@ -1,0 +1,54 @@
+<%- include('partials/head', { title: 'Configurações - Rastreio' }) %>
+<%- include('partials/shell', { active: 'config' }) %>
+
+<div class="topbar"><div><h1>Configurações de envio</h1><p class="sub">Escolha como as mensagens são entregues.</p></div></div>
+
+<% if (salvo) { %><div class="alert ok">Configurações salvas!</div><% } %>
+
+<form method="post" action="/config">
+  <div class="card">
+    <h2 style="margin-top:0">Modo de envio</h2>
+    <label>
+      <select name="send_mode">
+        <option value="simulado" <%= user.send_mode!=='real' ? 'selected' : '' %>>Simulado — só registra no log (para testes)</option>
+        <option value="real"     <%= user.send_mode==='real' ? 'selected' : '' %>>Real — envia de verdade (precisa das credenciais abaixo)</option>
+      </select>
+    </label>
+    <p class="hint">No modo simulado nada é enviado; a mensagem aparece no console e na aba Logs. Ótimo para testar tudo antes de plugar as APIs.</p>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">💬 WhatsApp</h2>
+    <label>Provedor</label>
+    <select name="wa_provider">
+      <option value=""         <%= !user.wa_provider ? 'selected' : '' %>>— (genérico)</option>
+      <option value="z-api"    <%= user.wa_provider==='z-api' ? 'selected' : '' %>>Z-API</option>
+      <option value="evolution"<%= user.wa_provider==='evolution' ? 'selected' : '' %>>Evolution API</option>
+    </select>
+    <div class="row">
+      <div><label>URL base da API</label><input name="wa_api_url" value="<%= user.wa_api_url %>" placeholder="https://api.z-api.io"></div>
+      <div><label>Instância</label><input name="wa_instance" value="<%= user.wa_instance %>" placeholder="ID da instância"></div>
+    </div>
+    <label>Token / API Key</label>
+    <input name="wa_api_token" value="<%= user.wa_api_token %>" placeholder="token do provedor">
+    <p class="hint">Z-API: URL base <code>https://api.z-api.io</code>. Evolution: a URL do seu servidor. Deixe em branco se ainda não for usar.</p>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">✉️ E-mail (SMTP)</h2>
+    <div class="row">
+      <div><label>Host SMTP</label><input name="smtp_host" value="<%= user.smtp_host %>" placeholder="smtp.gmail.com"></div>
+      <div><label>Porta</label><input name="smtp_port" value="<%= user.smtp_port %>" placeholder="587"></div>
+    </div>
+    <div class="row">
+      <div><label>Usuário</label><input name="smtp_user" value="<%= user.smtp_user %>" placeholder="seu@email.com"></div>
+      <div><label>Senha</label><input type="password" name="smtp_pass" value="<%= user.smtp_pass %>"></div>
+    </div>
+    <label>Remetente (from)</label>
+    <input name="smtp_from" value="<%= user.smtp_from %>" placeholder="Minha Loja <seu@email.com>">
+  </div>
+
+  <button>Salvar configurações</button>
+</form>
+
+<%- include('partials/shell_end') %>

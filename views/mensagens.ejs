@@ -1,0 +1,36 @@
+<%- include('partials/head', { title: 'Mensagens - Rastreio' }) %>
+<%- include('partials/shell', { active: 'mensagens' }) %>
+
+<div class="topbar"><div><h1>Mensagens</h1><p class="sub">Personalize o que o cliente recebe no WhatsApp e no e-mail.</p></div></div>
+
+<% if (salvo) { %><div class="alert ok">Mensagens salvas!</div><% } %>
+
+<div class="card">
+  <p class="tags">Variáveis disponíveis:
+    <code>{nome}</code><code>{codigo}</code><code>{status}</code><code>{link}</code><code>{loja}</code>
+  </p>
+</div>
+
+<form method="post" action="/mensagens">
+  <div class="card">
+    <h2 style="margin-top:0">Nome da loja</h2>
+    <input type="text" name="store_name" value="<%= user.store_name %>">
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">💬 Mensagem de WhatsApp</h2>
+    <textarea name="msg_wpp"><%= user.msg_wpp %></textarea>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">✉️ E-mail</h2>
+    <label>Assunto</label>
+    <input type="text" name="email_subject" value="<%= user.email_subject %>">
+    <label>Corpo</label>
+    <textarea name="msg_email"><%= user.msg_email %></textarea>
+  </div>
+
+  <button>Salvar mensagens</button>
+</form>
+
+<%- include('partials/shell_end') %>

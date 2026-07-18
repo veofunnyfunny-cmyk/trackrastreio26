@@ -1,0 +1,17 @@
+<%# Barra lateral do painel. `active` define o item destacado. %>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">📦 Rastreio<small><%= user.store_name %></small></div>
+    <nav class="nav">
+      <a href="/"          class="<%= active==='dashboard' ? 'active' : '' %>">Painel</a>
+      <a href="/webhook"   class="<%= active==='webhook'   ? 'active' : '' %>">Webhook</a>
+      <a href="/mensagens" class="<%= active==='mensagens' ? 'active' : '' %>">Mensagens</a>
+      <a href="/config"    class="<%= active==='config'    ? 'active' : '' %>">Configurações</a>
+      <a href="/rastreios" class="<%= active==='rastreios' ? 'active' : '' %>">Rastreios</a>
+      <a href="/logs"      class="<%= active==='logs'      ? 'active' : '' %>">Logs de envio</a>
+    </nav>
+    <form method="post" action="/logout">
+      <button class="btn-ghost btn-sm" style="width:100%">Sair (<%= user.email %>)</button>
+    </form>
+  </aside>
+  <main class="main">

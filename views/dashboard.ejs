@@ -1,0 +1,51 @@
+<%- include('partials/head', { title: 'Painel - Rastreio' }) %>
+<%- include('partials/shell', { active: 'dashboard' }) %>
+
+<div class="topbar">
+  <div><h1>Painel</h1><p class="sub">Bem-vindo, <%= user.name %></p></div>
+  <span class="badge <%= user.send_mode==='real' ? 'ok' : 'warn' %>">
+    Modo de envio: <%= user.send_mode === 'real' ? 'REAL' : 'SIMULADO' %>
+  </span>
+</div>
+
+<div class="grid cols-3">
+  <div class="card stat"><div class="num"><%= stats.total %></div><div class="lbl">Rastreios criados</div></div>
+  <div class="card stat"><div class="num"><%= stats.msgs %></div><div class="lbl">Mensagens registradas</div></div>
+  <div class="card stat">
+    <div class="num"><a href="/webhook">Webhook</a></div>
+    <div class="lbl">Configure a integração</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">Começar rápido</h2>
+  <ol style="color:var(--muted); line-height:1.9">
+    <li>Vá em <a href="/webhook">Webhook</a> e copie sua URL para colar no gateway.</li>
+    <li>Edite o texto em <a href="/mensagens">Mensagens</a> (WhatsApp e e-mail).</li>
+    <li>Em <a href="/config">Configurações</a>, deixe no modo <b>Simulado</b> para testar sem credenciais.</li>
+    <li>Clique em <b>“Disparar pedido de teste”</b> na aba Webhook e veja o rastreio aparecer.</li>
+  </ol>
+</div>
+
+<h2>Últimos rastreios</h2>
+<div class="card">
+  <% if (ultimos.length === 0) { %>
+    <p class="sub">Nenhum rastreio ainda. Dispare um teste na aba <a href="/webhook">Webhook</a>.</p>
+  <% } else { %>
+    <table>
+      <thead><tr><th>Código</th><th>Cliente</th><th>Status</th><th>Quando</th></tr></thead>
+      <tbody>
+        <% ultimos.forEach(t => { %>
+          <tr>
+            <td><a href="<%= base %>/rastreio/<%= t.code %>" target="_blank"><%= t.code %></a></td>
+            <td><%= t.customer_name || '—' %></td>
+            <td><span class="badge info"><%= t.status %></span></td>
+            <td class="sub"><%= t.created_at %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<%- include('partials/shell_end') %>

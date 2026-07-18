@@ -1,0 +1,28 @@
+<%- include('partials/head', { title: 'Logs - Rastreio' }) %>
+<%- include('partials/shell', { active: 'logs' }) %>
+
+<div class="topbar"><div><h1>Logs de envio</h1><p class="sub">Histórico de mensagens (WhatsApp e e-mail).</p></div></div>
+
+<div class="card">
+  <% if (logs.length === 0) { %>
+    <p class="sub">Nenhuma mensagem registrada ainda.</p>
+  <% } else { %>
+    <table>
+      <thead><tr><th>Quando</th><th>Canal</th><th>Destino</th><th>Status</th><th>Detalhe</th></tr></thead>
+      <tbody>
+        <% logs.forEach(l => {
+             const cls = l.status==='enviado' ? 'ok' : (l.status==='erro' ? 'err' : 'warn'); %>
+          <tr>
+            <td class="sub" style="font-size:12px"><%= l.created_at %></td>
+            <td><%= l.channel === 'whatsapp' ? '💬 WhatsApp' : '✉️ E-mail' %></td>
+            <td class="sub" style="font-size:12px"><%= l.destination || '—' %></td>
+            <td><span class="badge <%= cls %>"><%= l.status %></span></td>
+            <td class="sub" style="font-size:12px; max-width:320px"><%= l.error || (l.content ? l.content.slice(0,80)+'…' : '') %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<%- include('partials/shell_end') %>

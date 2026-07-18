@@ -1,0 +1,33 @@
+<%- include('../partials/head', { title: 'Rastreio ' + tracking.code }) %>
+<div class="center-wrap">
+  <div class="center-card wide card">
+    <% if (loja) { %><p class="sub" style="margin-bottom:2px"><%= loja %></p><% } %>
+    <h1 style="margin-top:0">📦 Seu pedido</h1>
+
+    <div class="codebox" style="justify-content:center; margin-bottom:8px">
+      <b style="letter-spacing:1px"><%= tracking.code %></b>
+    </div>
+
+    <div style="text-align:center; margin:18px 0">
+      <span class="badge info" style="font-size:15px; padding:8px 16px"><%= tracking.status %></span>
+    </div>
+
+    <% if (tracking.customer_name) { %>
+      <p class="sub" style="text-align:center">Destinatário: <%= tracking.customer_name %></p>
+    <% } %>
+
+    <h2>Histórico</h2>
+    <ul class="timeline">
+      <% eventos.forEach(e => { %>
+        <li>
+          <div><b><%= e.status %></b></div>
+          <% if (e.description) { %><div class="sub" style="font-size:13px"><%= e.description %></div><% } %>
+          <div class="when"><%= e.created_at %></div>
+        </li>
+      <% }) %>
+    </ul>
+
+    <p class="muted-link"><a href="/rastreio">Rastrear outro código</a></p>
+  </div>
+</div>
+</body></html>

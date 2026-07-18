@@ -1,0 +1,35 @@
+# Configuração do Render (Blueprint).
+# Ao conectar este repositório no Render como "Blueprint", ele cria o serviço
+# web automaticamente com estas configurações.
+#
+# ---------------------------------------------------------------------------
+# TESTE (grátis): funciona como está. ATENÇÃO: no plano free o disco é
+# temporário — os dados (contas/vendas) resetam quando o serviço reinicia ou
+# dorme por inatividade. Bom para testar, não para uso real.
+#
+# USO REAL (dados permanentes): mude "plan: free" para "plan: starter" e
+# descomente o bloco "disk" + a variável DATA_DIR abaixo. Aí o banco fica
+# salvo no disco persistente e nunca some.
+# ---------------------------------------------------------------------------
+
+services:
+  - type: web
+    name: trackrastreio26
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: SESSION_SECRET
+        generateValue: true      # o Render gera um segredo aleatório
+      - key: NODE_VERSION
+        value: "22.15.0"
+      # Para dados permanentes (com disco), descomente as 2 linhas abaixo:
+      # - key: DATA_DIR
+      #   value: /var/data
+
+    # Para dados permanentes, mude o plan acima para "starter" e descomente:
+    # disk:
+    #   name: dados
+    #   mountPath: /var/data
+    #   sizeGB: 1

@@ -1,0 +1,49 @@
+<%- include('partials/head', { title: 'Webhook - Rastreio' }) %>
+<%- include('partials/shell', { active: 'webhook' }) %>
+
+<div class="topbar"><div><h1>Webhook</h1><p class="sub">Cole esta URL no seu gateway para receber os pedidos.</p></div></div>
+
+<% if (salvo) { %><div class="alert ok">Token regenerado com sucesso. Atualize a URL no seu gateway.</div><% } %>
+
+<div class="card">
+  <h2 style="margin-top:0">Sua URL de webhook</h2>
+  <div class="codebox">
+    <span id="hookurl"><%= base %>/webhook/<%= user.webhook_token %></span>
+    <button class="btn-sm btn-ghost" type="button" onclick="copiar('hookurl', this)">Copiar</button>
+  </div>
+  <p class="hint">Método: <code>POST</code> &nbsp;•&nbsp; Corpo: <code>JSON</code>. O sistema tenta ler
+    <code>nome</code>, <code>email</code> e <code>telefone/whatsapp</code> automaticamente do payload do gateway.</p>
+
+  <form method="post" action="/webhook/regenerar" style="margin-top:14px"
+        onsubmit="return confirm('Regenerar o token vai invalidar a URL atual. Continuar?')">
+    <button class="btn-ghost btn-sm">Regenerar token</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">Testar agora</h2>
+  <p class="sub">Cria um pedido fictício, gera um código de rastreio aleatório e dispara as mensagens (no modo atual).</p>
+  <form method="post" action="/webhook/testar">
+    <button>Disparar pedido de teste</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">Exemplo de chamada (para testar via terminal)</h2>
+  <div class="codebox" style="display:block">
+<pre style="margin:0; white-space:pre-wrap">curl -X POST "<%= base %>/webhook/<%= user.webhook_token %>" \
+  -H "Content-Type: application/json" \
+  -d '{"nome":"João Silva","email":"joao@email.com","telefone":"11999998888","order_id":"12345"}'</pre>
+  </div>
+  <p class="hint">A resposta traz <code>tracking_code</code> e <code>tracking_url</code>.</p>
+</div>
+
+<script>
+function copiar(id, btn) {
+  navigator.clipboard.writeText(document.getElementById(id).innerText).then(() => {
+    const t = btn.innerText; btn.innerText = 'Copiado!'; setTimeout(() => btn.innerText = t, 1500);
+  });
+}
+</script>
+
+<%- include('partials/shell_end') %>
