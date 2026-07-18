@@ -91,4 +91,14 @@ CREATE TABLE IF NOT EXISTS message_logs (
 CREATE INDEX IF NOT EXISTS idx_logs_user ON message_logs(user_id);
 `);
 
+// ---------------------------------------------------------------------------
+// Migrações simples: colunas adicionadas depois da criação inicial.
+// (roda toda vez, mas só adiciona se ainda não existir)
+// ---------------------------------------------------------------------------
+const userCols = db.prepare('PRAGMA table_info(users)').all().map((c) => c.name);
+if (!userCols.includes('wa_client_token')) {
+  // Token de segurança da conta Z-API (header Client-Token). Opcional.
+  db.exec("ALTER TABLE users ADD COLUMN wa_client_token TEXT DEFAULT ''");
+}
+
 module.exports = db;

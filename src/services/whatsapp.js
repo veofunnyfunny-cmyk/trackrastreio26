@@ -35,12 +35,12 @@ async function enviarWhatsapp(user, telefone, texto) {
 
     if (provider === 'z-api' || provider === 'zapi') {
       // Z-API: https://api.z-api.io/instances/{instance}/token/{token}/send-text
-      url = `${user.wa_api_url.replace(/\/$/, '')}/instances/${user.wa_instance}/token/${user.wa_api_token}/send-text`;
-      options = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: destino, message: texto }),
-      };
+      const base = (user.wa_api_url && user.wa_api_url.trim())
+        ? user.wa_api_url.replace(/\/$/, '') : 'https://api.z-api.io';
+      url = `${base}/instances/${user.wa_instance}/token/${user.wa_api_token}/send-text`;
+      const headers = { 'Content-Type': 'application/json' };
+      if (user.wa_client_token) headers['Client-Token'] = user.wa_client_token;
+      options = { method: 'POST', headers, body: JSON.stringify({ phone: destino, message: texto }) };
     } else if (provider === 'evolution') {
       // Evolution API: POST {base}/message/sendText/{instance}  header apikey
       url = `${user.wa_api_url.replace(/\/$/, '')}/message/sendText/${user.wa_instance}`;
@@ -72,4 +72,45 @@ async function enviarWhatsapp(user, telefone, texto) {
   }
 }
 
-module.exports = { enviarWhatsapp, normalizarTelefone };
+// Testa se o WhatsApp está conectado (por enquanto suporta Z-API).
+// Retorna { ok, connected, message }.
+async function testarConexao(user) {
+  const provider = (user.wa_provider || '').toLowerCase();
+
+  if (provider !== 'z-api' && provider !== 'zapi') {
+    return { ok: false, message: 'O teste automático só funciona com Z-API por enquanto.' };
+  }
+  if (!user.wa_instance || !user.wa_api_token) {
+    return { ok: false, message: 'Preencha a Instância e o Token e salve antes de testar.' };
+  }
+
+  try {
+    const base = (user.wa_api_url && user.wa_api_url.trim())
+      ? user.wa_api_url.replace(/\/$/, '') : 'https://api.z-api.io';
+    const url = `${base}/instances/${user.wa_instance}/token/${user.wa_api_token}/status`;
+    const headers = {};
+    if (user.wa_client_token) headers['Client-Token'] = user.wa_client_token;
+
+    const resp = await fetch(url, { headers });
+    const data = await resp.json().catch(() => ({}));
+
+    if (!resp.ok) {
+      return { ok: false, message: `Erro do Z-API (HTTP ${resp.status}). Confira os dados.`, raw: data };
+    }
+    if (data.error) {
+      return { ok: false, message: `Z-API: ${data.error}` };
+    }
+    if (data.connected) {
+      return { ok: true, connected: true, message: 'WhatsApp conectado! ✅ Pode enviar mensagens.' };
+    }
+    return {
+      ok: true,
+      connected: false,
+      message: 'Credenciais OK, mas o WhatsApp ainda NÃO está conectado. Leia o QR code no painel do Z-API.',
+    };
+  } catch (err) {
+    return { ok: false, message: 'Não consegui falar com o Z-API: ' + err.message };
+  }
+}
+
+module.exports = { enviarWhatsapp, normalizarTelefone, testarConexao };

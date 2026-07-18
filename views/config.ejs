@@ -11,31 +11,67 @@
     <label>
       <select name="send_mode">
         <option value="simulado" <%= user.send_mode!=='real' ? 'selected' : '' %>>Simulado — só registra no log (para testes)</option>
-        <option value="real"     <%= user.send_mode==='real' ? 'selected' : '' %>>Real — envia de verdade (precisa das credenciais abaixo)</option>
+        <option value="real"     <%= user.send_mode==='real' ? 'selected' : '' %>>Real — envia de verdade (precisa conectar abaixo)</option>
       </select>
     </label>
-    <p class="hint">No modo simulado nada é enviado; a mensagem aparece no console e na aba Logs. Ótimo para testar tudo antes de plugar as APIs.</p>
+    <p class="hint">No modo simulado nada é enviado; a mensagem aparece na aba Logs. Ótimo para testar tudo antes de conectar o WhatsApp.</p>
   </div>
 
+  <!-- ================= WHATSAPP ================= -->
   <div class="card">
-    <h2 style="margin-top:0">💬 WhatsApp</h2>
-    <label>Provedor</label>
-    <select name="wa_provider">
-      <option value=""         <%= !user.wa_provider ? 'selected' : '' %>>— (genérico)</option>
-      <option value="z-api"    <%= user.wa_provider==='z-api' ? 'selected' : '' %>>Z-API</option>
-      <option value="evolution"<%= user.wa_provider==='evolution' ? 'selected' : '' %>>Evolution API</option>
-    </select>
-    <div class="row">
-      <div><label>URL base da API</label><input name="wa_api_url" value="<%= user.wa_api_url %>" placeholder="https://api.z-api.io"></div>
-      <div><label>Instância</label><input name="wa_instance" value="<%= user.wa_instance %>" placeholder="ID da instância"></div>
+    <h2 style="margin-top:0">💬 Conectar o WhatsApp</h2>
+
+    <div class="alert ok" style="background:#131a33; color:#c9d4ff; border-color:#2b3766">
+      <b>Como conectar (leva 2 minutos):</b>
+      <ol style="margin:10px 0 0; padding-left:18px; line-height:1.9">
+        <li>Crie uma conta no <a href="https://www.z-api.io" target="_blank">Z-API</a> e crie uma <b>instância</b>.</li>
+        <li>No painel do Z-API, leia o <b>QR Code</b> com seu WhatsApp (Aparelhos conectados → Conectar aparelho).</li>
+        <li>Ainda no Z-API, copie os dados <b>ID da Instância</b>, <b>Token</b> e <b>Token de Segurança</b> e cole abaixo.</li>
+        <li>Clique em <b>Salvar</b> e depois em <b>Testar conexão</b>.</li>
+      </ol>
     </div>
-    <label>Token / API Key</label>
-    <input name="wa_api_token" value="<%= user.wa_api_token %>" placeholder="token do provedor">
-    <p class="hint">Z-API: URL base <code>https://api.z-api.io</code>. Evolution: a URL do seu servidor. Deixe em branco se ainda não for usar.</p>
+
+    <label>Provedor</label>
+    <select name="wa_provider" id="wa_provider" onchange="toggleProvider()">
+      <option value="z-api"    <%= (user.wa_provider==='z-api' || !user.wa_provider) ? 'selected' : '' %>>Z-API (recomendado)</option>
+      <option value="evolution"<%= user.wa_provider==='evolution' ? 'selected' : '' %>>Evolution API</option>
+      <option value=""         <%= user.wa_provider==='' && user.wa_api_url ? 'selected' : '' %>>Outro (genérico)</option>
+    </select>
+
+    <!-- URL base: só aparece para Evolution/Outro. Para Z-API é automática. -->
+    <div id="wa_url_row" style="display:none">
+      <label>URL base da API</label>
+      <input name="wa_api_url" id="wa_api_url" value="<%= user.wa_api_url %>" placeholder="https://seu-servidor-evolution.com">
+    </div>
+
+    <div class="row">
+      <div>
+        <label>ID da Instância</label>
+        <input name="wa_instance" value="<%= user.wa_instance %>" placeholder="ex.: 3D8B1F...">
+        <p class="hint">No Z-API: dentro da sua instância, campo <b>ID da instância</b>.</p>
+      </div>
+      <div>
+        <label>Token</label>
+        <input name="wa_api_token" value="<%= user.wa_api_token %>" placeholder="token da instância">
+        <p class="hint">No Z-API: campo <b>Token</b> da instância.</p>
+      </div>
+    </div>
+
+    <label>Token de Segurança (Client-Token)</label>
+    <input name="wa_client_token" value="<%= user.wa_client_token || '' %>" placeholder="cole aqui (Z-API › Segurança › Account Security Token)">
+    <p class="hint">No Z-API fica em <b>Segurança da conta</b>. Se sua conta não usa, pode deixar em branco.</p>
+
+    <div style="margin-top:14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+      <button type="button" class="btn-ghost" onclick="testarWhatsapp(this)">Testar conexão</button>
+      <span id="wa_test_result" class="hint" style="margin:0"></span>
+    </div>
+    <p class="hint">Salve as configurações antes de testar.</p>
   </div>
 
+  <!-- ================= EMAIL ================= -->
   <div class="card">
-    <h2 style="margin-top:0">✉️ E-mail (SMTP)</h2>
+    <h2 style="margin-top:0">✉️ E-mail (opcional)</h2>
+    <p class="hint" style="margin-top:0">Se usar Gmail, crie uma "Senha de app" (Conta Google › Segurança › Verificação em duas etapas › Senhas de app) e use ela no campo Senha.</p>
     <div class="row">
       <div><label>Host SMTP</label><input name="smtp_host" value="<%= user.smtp_host %>" placeholder="smtp.gmail.com"></div>
       <div><label>Porta</label><input name="smtp_port" value="<%= user.smtp_port %>" placeholder="587"></div>
@@ -50,5 +86,32 @@
 
   <button>Salvar configurações</button>
 </form>
+
+<script>
+  function toggleProvider() {
+    var p = document.getElementById('wa_provider').value;
+    // Para Z-API a URL é fixa (api.z-api.io), então escondemos o campo.
+    document.getElementById('wa_url_row').style.display = (p === 'z-api') ? 'none' : 'block';
+  }
+  toggleProvider();
+
+  async function testarWhatsapp(btn) {
+    var out = document.getElementById('wa_test_result');
+    out.style.color = 'var(--muted)';
+    out.textContent = 'Testando...';
+    btn.disabled = true;
+    try {
+      var resp = await fetch('/config/testar-whatsapp', { method: 'POST' });
+      var data = await resp.json();
+      out.style.color = data.ok && data.connected ? '#6ee7a0' : (data.ok ? '#fcd34d' : '#fca5a5');
+      out.textContent = data.message || (data.ok ? 'OK' : 'Falhou');
+    } catch (e) {
+      out.style.color = '#fca5a5';
+      out.textContent = 'Erro ao testar: ' + e.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+</script>
 
 <%- include('partials/shell_end') %>

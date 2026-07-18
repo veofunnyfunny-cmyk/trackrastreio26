@@ -6,6 +6,7 @@ const db = require('../db');
 const { requireLogin, baseUrl } = require('../middleware');
 const { notificarCliente } = require('../services/notify');
 const { gerarCodigo } = require('../services/tracking');
+const { testarConexao } = require('../services/whatsapp');
 
 const router = express.Router();
 router.use(requireLogin);
@@ -80,6 +81,7 @@ router.post('/config', (req, res) => {
     UPDATE users SET
       send_mode=@send_mode,
       wa_provider=@wa_provider, wa_api_url=@wa_api_url, wa_api_token=@wa_api_token, wa_instance=@wa_instance,
+      wa_client_token=@wa_client_token,
       smtp_host=@smtp_host, smtp_port=@smtp_port, smtp_user=@smtp_user, smtp_pass=@smtp_pass, smtp_from=@smtp_from
     WHERE id=@id
   `).run({
@@ -89,6 +91,7 @@ router.post('/config', (req, res) => {
     wa_api_url: req.body.wa_api_url || '',
     wa_api_token: req.body.wa_api_token || '',
     wa_instance: req.body.wa_instance || '',
+    wa_client_token: req.body.wa_client_token || '',
     smtp_host: req.body.smtp_host || '',
     smtp_port: Number(req.body.smtp_port) || 587,
     smtp_user: req.body.smtp_user || '',
@@ -96,6 +99,12 @@ router.post('/config', (req, res) => {
     smtp_from: req.body.smtp_from || '',
   });
   res.redirect('/config?salvo=1');
+});
+
+// Testa a conexão do WhatsApp (usado pelo botão "Testar conexão"). Retorna JSON.
+router.post('/config/testar-whatsapp', async (req, res) => {
+  const r = await testarConexao(req.user);
+  res.json(r);
 });
 
 // ---- Lista de rastreios ---------------------------------------------------
