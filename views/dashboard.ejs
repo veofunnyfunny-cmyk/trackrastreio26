@@ -16,7 +16,7 @@
   <div class="card stat"><div class="num"><%= stats.total %></div><div class="lbl">Rastreios criados</div></div>
   <div class="card stat"><div class="num"><%= stats.msgs %></div><div class="lbl">Mensagens registradas</div></div>
   <div class="card stat">
-    <div class="num" style="color:#6ee7a0"><%= saldoBRL %></div>
+    <div class="num" style="color:var(--success)"><%= saldoBRL %></div>
     <div class="lbl">Saldo disponível • <a href="/saldo">recarregar</a></div>
   </div>
 </div>
@@ -49,7 +49,7 @@
           <tr>
             <td><a href="<%= base %>/rastreio/<%= t.code %>" target="_blank"><%= t.code %></a></td>
             <td><%= t.customer_name || '—' %></td>
-            <td><span class="badge info"><%= t.status %></span></td>
+            <td><span class="badge info"><%= t.status_atual %></span></td>
             <td class="sub"><%= t.created_at %></td>
           </tr>
         <% }) %>

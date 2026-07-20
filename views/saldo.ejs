@@ -8,7 +8,7 @@
 <div class="grid cols-2">
   <div class="card">
     <div class="sub">Saldo disponível</div>
-    <div style="font-size:38px; font-weight:700; color:#6ee7a0; margin:4px 0"><%= saldoBRL %></div>
+    <div style="font-size:38px; font-weight:700; color:var(--success); margin:4px 0; letter-spacing:-.02em"><%= saldoBRL %></div>
     <div class="sub" style="font-size:13px">
       💬 WhatsApp: <%= billing.formatBRL(billing.PRECOS.whatsapp) %>/msg &nbsp;•&nbsp;
       ✉️ E-mail: <%= billing.formatBRL(billing.PRECOS.email) %>/msg
@@ -18,7 +18,7 @@
   <div class="card">
     <h2 style="margin-top:0">Adicionar saldo</h2>
     <% if (testTopup) { %>
-      <div class="alert warn" style="background:#3a2c10; color:#fcd34d; border-color:#6e5410">
+      <div class="alert warn">
         ⚙️ <b>Modo de teste ativo.</b> O saldo abaixo é fictício, só para testar a cobrança.
         Na versão final, aqui entra o pagamento real (Pix).
       </div>
@@ -47,7 +47,7 @@
           <tr>
             <td class="sub" style="font-size:12px"><%= t.created_at %></td>
             <td><%= t.description %><% if (t.channel) { %> <span class="sub">(<%= t.channel %>)</span><% } %></td>
-            <td style="text-align:right; font-weight:600; color:<%= t.kind==='credito' ? '#6ee7a0' : '#fca5a5' %>">
+            <td style="text-align:right" class="<%= t.kind==='credito' ? 'money-in' : 'money-out' %>">
               <%= t.kind==='credito' ? '+' : '−' %> <%= billing.formatBRL(t.amount_cents) %>
             </td>
           </tr>

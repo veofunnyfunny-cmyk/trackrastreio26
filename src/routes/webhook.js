@@ -48,14 +48,26 @@ router.post('/webhook/:token', async (req, res) => {
   const gateway_order_id = pick(body, [
     'order_id', 'id', 'pedido', 'transaction_id', 'order.id', 'data.id', 'data.order_id',
   ]);
+  const customer_cep = pick(body, [
+    'cep', 'zip', 'zipcode', 'zip_code', 'postal_code', 'customer.zip_code', 'customer.cep',
+    'address.zip', 'address.zipcode', 'shipping.zip', 'data.customer.zip_code',
+  ]);
+  const customer_city = pick(body, [
+    'city', 'cidade', 'customer.city', 'address.city', 'shipping.city', 'data.customer.city',
+  ]);
+  const customer_state = pick(body, [
+    'state', 'uf', 'estado', 'customer.state', 'address.state', 'shipping.state', 'data.customer.state',
+  ]);
 
   const code = gerarCodigo();
   const info = db.prepare(`
-    INSERT INTO trackings (user_id, code, gateway_order_id, customer_name, customer_email, customer_phone, status, raw_payload)
-    VALUES (?, ?, ?, ?, ?, ?, 'Pedido confirmado', ?)
+    INSERT INTO trackings (user_id, code, gateway_order_id, customer_name, customer_email, customer_phone,
+      customer_cep, customer_city, customer_state, status, raw_payload)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pedido confirmado', ?)
   `).run(
     user.id, code, gateway_order_id || null,
     customer_name || null, customer_email || null, customer_phone || null,
+    customer_cep || null, customer_city || null, customer_state || null,
     JSON.stringify(body)
   );
 

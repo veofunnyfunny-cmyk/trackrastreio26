@@ -1,7 +1,10 @@
 <%# Barra lateral do painel. `active` define o item destacado. %>
 <div class="shell">
   <aside class="sidebar">
-    <div class="brand">📦 Rastreio<small><%= user.store_name %></small></div>
+    <div class="brand">
+      <span class="logo-mark">📦</span>
+      <span>Rastreio<small><%= user.store_name %></small></span>
+    </div>
     <div class="saldo-box">
       <span class="saldo-lbl">Saldo</span>
       <a href="/saldo" class="saldo-val"><%= typeof saldoBRL !== 'undefined' ? saldoBRL : 'R$ 0,00' %></a>
@@ -16,8 +19,9 @@
       <a href="/rastreios" class="<%= active==='rastreios' ? 'active' : '' %>">Rastreios</a>
       <a href="/logs"      class="<%= active==='logs'      ? 'active' : '' %>">Logs de envio</a>
     </nav>
+    <div class="spacer"></div>
     <form method="post" action="/logout">
-      <button class="btn-ghost btn-sm" style="width:100%">Sair (<%= user.email %>)</button>
+      <button class="btn-ghost btn-sm" style="width:100%">Sair</button>
     </form>
   </aside>
   <main class="main">

@@ -10,7 +10,7 @@
   <div class="card">
     <h2 style="margin-top:0">💬 Conectar o WhatsApp</h2>
 
-    <div class="alert ok" style="background:#131a33; color:#c9d4ff; border-color:#2b3766">
+    <div class="alert info">
       <b>Como conectar (leva 2 minutos):</b>
       <ol style="margin:10px 0 0; padding-left:18px; line-height:1.9">
         <li>Crie uma conta no <a href="https://www.z-api.io" target="_blank">Z-API</a> e crie uma <b>instância</b>.</li>
@@ -92,10 +92,10 @@
     try {
       var resp = await fetch('/config/testar-whatsapp', { method: 'POST' });
       var data = await resp.json();
-      out.style.color = data.ok && data.connected ? '#6ee7a0' : (data.ok ? '#fcd34d' : '#fca5a5');
+      out.style.color = data.ok && data.connected ? 'var(--success)' : (data.ok ? 'var(--warn)' : 'var(--danger)');
       out.textContent = data.message || (data.ok ? 'OK' : 'Falhou');
     } catch (e) {
-      out.style.color = '#fca5a5';
+      out.style.color = 'var(--danger)';
       out.textContent = 'Erro ao testar: ' + e.message;
     } finally {
       btn.disabled = false;

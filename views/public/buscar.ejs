@@ -1,14 +1,19 @@
 <%- include('../partials/head', { title: 'Rastrear pedido' }) %>
 <div class="center-wrap">
-  <div class="center-card card">
-    <h1>📦 Rastrear pedido</h1>
-    <p class="sub">Digite seu código de rastreio</p>
-    <% if (erro) { %><div class="alert err"><%= erro %></div><% } %>
-    <form method="get" action="/rastreio">
-      <input type="text" name="code" placeholder="Ex.: RS-ABC123-4567" required autofocus
-             style="text-align:center; text-transform:uppercase; letter-spacing:1px">
-      <button type="submit" style="width:100%; margin-top:16px">Rastrear</button>
-    </form>
+  <div class="center-card">
+    <div class="card">
+      <div class="auth-brand">
+        <span class="logo-mark">📦</span>
+        <h1>Rastrear pedido</h1>
+      </div>
+      <p class="sub">Digite seu código de rastreio para acompanhar</p>
+      <% if (erro) { %><div class="alert err" style="margin-top:16px"><%= erro %></div><% } %>
+      <form method="get" action="/rastreio" style="margin-top:16px">
+        <input type="text" name="code" placeholder="Ex.: RS-ABC123-4567" required autofocus
+               style="text-align:center; text-transform:uppercase; letter-spacing:1px; font-family:'SFMono-Regular',Consolas,monospace">
+        <button type="submit" style="width:100%; margin-top:14px">Rastrear</button>
+      </form>
+    </div>
   </div>
 </div>
 </body></html>

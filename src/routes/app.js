@@ -9,6 +9,7 @@ const { gerarCodigo } = require('../services/tracking');
 const { testarConexao } = require('../services/whatsapp');
 const evolution = require('../services/evolution');
 const billing = require('../services/billing');
+const stages = require('../services/stages');
 
 const router = express.Router();
 router.use(requireLogin);
@@ -30,6 +31,7 @@ router.get('/', (req, res) => {
   const ultimos = db.prepare(
     'SELECT * FROM trackings WHERE user_id = ? ORDER BY id DESC LIMIT 5'
   ).all(req.user.id);
+  ultimos.forEach((t) => { t.status_atual = stages.statusAtual(t); });
   res.render('dashboard', { stats, ultimos, base: baseUrl(req) });
 });
 
@@ -50,11 +52,13 @@ router.post('/webhook/acao/regenerar', (req, res) => {
 router.post('/webhook/acao/testar', async (req, res) => {
   const code = gerarCodigo();
   const info = db.prepare(`
-    INSERT INTO trackings (user_id, code, gateway_order_id, customer_name, customer_email, customer_phone, status, raw_payload)
-    VALUES (?, ?, ?, ?, ?, ?, 'Pedido confirmado', ?)
+    INSERT INTO trackings (user_id, code, gateway_order_id, customer_name, customer_email, customer_phone,
+      customer_cep, customer_city, customer_state, status, raw_payload)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pedido confirmado', ?)
   `).run(
     req.user.id, code, 'TESTE-' + Date.now(),
     'Cliente Teste', req.user.email, '11999999999',
+    '20000-000', 'Rio de Janeiro', 'RJ',
     JSON.stringify({ teste: true })
   );
   const tracking = db.prepare('SELECT * FROM trackings WHERE id = ?').get(info.lastInsertRowid);
@@ -156,6 +160,7 @@ router.get('/rastreios', (req, res) => {
   const trackings = db.prepare(
     'SELECT * FROM trackings WHERE user_id = ? ORDER BY id DESC LIMIT 200'
   ).all(req.user.id);
+  trackings.forEach((t) => { t.status_atual = stages.statusAtual(t); });
   res.render('rastreios', { trackings, base: baseUrl(req) });
 });
 

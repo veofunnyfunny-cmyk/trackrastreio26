@@ -105,6 +105,16 @@ if (!userCols.includes('balance_cents')) {
   db.exec('ALTER TABLE users ADD COLUMN balance_cents INTEGER NOT NULL DEFAULT 0');
 }
 
+// Endereço de destino do comprador (usado na jornada de rastreio).
+const trackCols = db.prepare('PRAGMA table_info(trackings)').all().map((c) => c.name);
+for (const [col, def] of [
+  ['customer_cep', "TEXT DEFAULT ''"],
+  ['customer_city', "TEXT DEFAULT ''"],
+  ['customer_state', "TEXT DEFAULT ''"],
+]) {
+  if (!trackCols.includes(col)) db.exec(`ALTER TABLE trackings ADD COLUMN ${col} ${def}`);
+}
+
 // Extrato de transações (créditos = recargas, débitos = mensagens enviadas).
 db.exec(`
 CREATE TABLE IF NOT EXISTS transactions (

@@ -1,33 +1,50 @@
 <%- include('../partials/head', { title: 'Rastreio ' + tracking.code }) %>
-<div class="center-wrap">
-  <div class="center-card wide card">
-    <% if (loja) { %><p class="sub" style="margin-bottom:2px"><%= loja %></p><% } %>
-    <h1 style="margin-top:0">📦 Seu pedido</h1>
+<div class="track-page">
 
-    <div class="codebox" style="justify-content:center; margin-bottom:8px">
-      <b style="letter-spacing:1px"><%= tracking.code %></b>
+  <% if (preview !== null) { %>
+    <div class="alert warn" style="margin-bottom:16px">
+      🔧 <b>Modo de teste</b> — pré-visualizando a jornada. Pule para o dia:
+      <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap">
+        <% [0,1,2,4,6,8,9,10].forEach(d => { %>
+          <a class="btn btn-sm <%= String(d)===preview ? '' : 'btn-ghost' %>" href="?dia=<%= d %>">Dia <%= d %></a>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+
+  <div class="track-head">
+    <span class="track-store"><span class="logo-mark">📦</span><%= loja || 'Rastreamento' %></span>
+  </div>
+
+  <div class="track-card">
+    <div class="track-hero">
+      <div class="label">Código de rastreio</div>
+      <div class="track-code"><%= tracking.code %></div>
+      <span class="status-pill"><span class="dot"></span><%= jornada.statusAtual %></span>
+      <% if (tracking.customer_name) { %>
+        <div class="track-recipient">Destinatário: <b><%= tracking.customer_name %></b></div>
+      <% } %>
+      <% if (!jornada.entregue) { %>
+        <div class="track-recipient">Previsão de entrega: <b>até <%= jornada.previsao %></b></div>
+      <% } %>
     </div>
 
-    <div style="text-align:center; margin:18px 0">
-      <span class="badge info" style="font-size:15px; padding:8px 16px"><%= tracking.status %></span>
+    <div class="track-body">
+      <h3>Histórico de movimentação</h3>
+      <ul class="timeline">
+        <% jornada.eventos.forEach((e, i) => { %>
+          <li class="<%= i === 0 ? 'current' : '' %>">
+            <div class="t-status"><%= e.status %></div>
+            <% if (e.description) { %><div class="t-desc"><%= e.description %></div><% } %>
+            <div class="t-when"><%= e.when %></div>
+          </li>
+        <% }) %>
+      </ul>
     </div>
+  </div>
 
-    <% if (tracking.customer_name) { %>
-      <p class="sub" style="text-align:center">Destinatário: <%= tracking.customer_name %></p>
-    <% } %>
-
-    <h2>Histórico</h2>
-    <ul class="timeline">
-      <% eventos.forEach(e => { %>
-        <li>
-          <div><b><%= e.status %></b></div>
-          <% if (e.description) { %><div class="sub" style="font-size:13px"><%= e.description %></div><% } %>
-          <div class="when"><%= e.created_at %></div>
-        </li>
-      <% }) %>
-    </ul>
-
-    <p class="muted-link"><a href="/rastreio">Rastrear outro código</a></p>
+  <div class="track-footer">
+    <a href="/rastreio">Rastrear outro código</a>
   </div>
 </div>
 </body></html>

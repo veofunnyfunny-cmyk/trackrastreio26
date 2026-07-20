@@ -1,17 +1,22 @@
 <%- include('partials/head', { title: 'Entrar - Rastreio' }) %>
 <div class="center-wrap">
-  <div class="center-card card">
-    <h1>📦 Rastreio</h1>
-    <p class="sub">Entre na sua conta</p>
-    <% if (erro) { %><div class="alert err"><%= erro %></div><% } %>
-    <form method="post" action="/login">
-      <label>E-mail</label>
-      <input type="email" name="email" value="<%= dados.email || '' %>" required autofocus>
-      <label>Senha</label>
-      <input type="password" name="password" required>
-      <button type="submit" style="width:100%; margin-top:18px">Entrar</button>
-    </form>
-    <p class="muted-link">Não tem conta? <a href="/register">Criar conta</a></p>
+  <div class="center-card">
+    <div class="card">
+      <div class="auth-brand">
+        <span class="logo-mark">📦</span>
+        <h1>Rastreio</h1>
+      </div>
+      <p class="sub">Entre na sua conta</p>
+      <% if (erro) { %><div class="alert err" style="margin-top:16px"><%= erro %></div><% } %>
+      <form method="post" action="/login" style="margin-top:8px">
+        <label>E-mail</label>
+        <input type="email" name="email" value="<%= dados.email || '' %>" required autofocus>
+        <label>Senha</label>
+        <input type="password" name="password" required>
+        <button type="submit" style="width:100%; margin-top:20px">Entrar</button>
+      </form>
+      <p class="muted-link">Não tem conta? <a href="/register">Criar conta</a></p>
+    </div>
   </div>
 </div>
 </body></html>

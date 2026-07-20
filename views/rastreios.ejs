@@ -1,35 +1,31 @@
 <%- include('partials/head', { title: 'Rastreios - Rastreio' }) %>
 <%- include('partials/shell', { active: 'rastreios' }) %>
 
-<div class="topbar"><div><h1>Rastreios</h1><p class="sub">Todos os pedidos recebidos.</p></div></div>
+<div class="topbar"><div><h1>Rastreios</h1><p class="sub">Todos os pedidos recebidos. O status avança automaticamente com o tempo.</p></div></div>
 
 <div class="card">
   <% if (trackings.length === 0) { %>
     <p class="sub">Nenhum rastreio ainda.</p>
   <% } else { %>
     <table>
-      <thead><tr><th>Código</th><th>Cliente</th><th>Contato</th><th>Status</th><th>Atualizar</th></tr></thead>
+      <thead><tr><th>Código</th><th>Cliente</th><th>Destino</th><th>Status atual</th><th></th></tr></thead>
       <tbody>
         <% trackings.forEach(t => { %>
           <tr>
-            <td><a href="<%= base %>/rastreio/<%= t.code %>" target="_blank"><%= t.code %></a></td>
             <td>
-              <%= t.customer_name || '—' %>
+              <a href="<%= base %>/rastreio/<%= t.code %>" target="_blank"><%= t.code %></a>
               <div class="sub" style="font-size:12px"><%= t.created_at %></div>
             </td>
-            <td class="sub" style="font-size:12px">
-              <%= t.customer_phone || '—' %><br><%= t.customer_email || '—' %>
-            </td>
-            <td><span class="badge info"><%= t.status %></span></td>
             <td>
-              <form method="post" action="/rastreios/<%= t.id %>/status" style="display:flex; gap:6px; align-items:center">
-                <input name="status" value="<%= t.status %>" style="min-width:150px">
-                <label style="margin:0; display:flex; align-items:center; gap:4px; white-space:nowrap; color:var(--muted); font-size:12px">
-                  <input type="checkbox" name="notificar" value="1" style="width:auto"> avisar
-                </label>
-                <button class="btn-sm">OK</button>
-              </form>
+              <%= t.customer_name || '—' %>
+              <div class="sub" style="font-size:12px"><%= t.customer_phone || '—' %></div>
             </td>
+            <td class="sub" style="font-size:13px">
+              <%= t.customer_city ? (t.customer_city + (t.customer_state ? '/'+t.customer_state : '')) : '—' %>
+              <% if (t.customer_cep) { %><div style="font-size:12px"><%= t.customer_cep %></div><% } %>
+            </td>
+            <td><span class="badge info"><%= t.status_atual %></span></td>
+            <td><a class="btn btn-ghost btn-sm" href="<%= base %>/rastreio/<%= t.code %>" target="_blank">Ver</a></td>
           </tr>
         <% }) %>
       </tbody>

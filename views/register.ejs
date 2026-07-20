@@ -1,19 +1,24 @@
 <%- include('partials/head', { title: 'Criar conta - Rastreio' }) %>
 <div class="center-wrap">
-  <div class="center-card card">
-    <h1>📦 Rastreio</h1>
-    <p class="sub">Crie sua conta de cliente</p>
-    <% if (erro) { %><div class="alert err"><%= erro %></div><% } %>
-    <form method="post" action="/register">
-      <label>Nome / Loja</label>
-      <input type="text" name="name" value="<%= dados.name || '' %>" required autofocus>
-      <label>E-mail</label>
-      <input type="email" name="email" value="<%= dados.email || '' %>" required>
-      <label>Senha (mín. 6 caracteres)</label>
-      <input type="password" name="password" required>
-      <button type="submit" style="width:100%; margin-top:18px">Criar conta</button>
-    </form>
-    <p class="muted-link">Já tem conta? <a href="/login">Entrar</a></p>
+  <div class="center-card">
+    <div class="card">
+      <div class="auth-brand">
+        <span class="logo-mark">📦</span>
+        <h1>Criar conta</h1>
+      </div>
+      <p class="sub">Comece a rastrear e notificar seus clientes</p>
+      <% if (erro) { %><div class="alert err" style="margin-top:16px"><%= erro %></div><% } %>
+      <form method="post" action="/register" style="margin-top:8px">
+        <label>Nome / Loja</label>
+        <input type="text" name="name" value="<%= dados.name || '' %>" required autofocus>
+        <label>E-mail</label>
+        <input type="email" name="email" value="<%= dados.email || '' %>" required>
+        <label>Senha (mín. 6 caracteres)</label>
+        <input type="password" name="password" required>
+        <button type="submit" style="width:100%; margin-top:20px">Criar conta</button>
+      </form>
+      <p class="muted-link">Já tem conta? <a href="/login">Entrar</a></p>
+    </div>
   </div>
 </div>
 </body></html>
