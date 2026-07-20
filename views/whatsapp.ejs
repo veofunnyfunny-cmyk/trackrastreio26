@@ -1,0 +1,97 @@
+<%- include('partials/head', { title: 'Conectar WhatsApp - Rastreio' }) %>
+<%- include('partials/shell', { active: 'whatsapp' }) %>
+
+<div class="topbar"><div><h1>📱 Conectar WhatsApp</h1><p class="sub">Escaneie o QR code para conectar seu WhatsApp. É só uma vez.</p></div></div>
+
+<% if (!configurado) { %>
+  <div class="alert err">
+    O servidor ainda não tem o Evolution configurado (faltam as variáveis <code>EVOLUTION_URL</code> e <code>EVOLUTION_API_KEY</code>).
+  </div>
+<% } %>
+
+<div class="card" style="text-align:center">
+  <div id="status" class="badge warn" style="font-size:14px; padding:7px 14px">Verificando...</div>
+
+  <!-- Área do QR -->
+  <div id="qr-area" style="margin-top:20px; display:none">
+    <div style="background:#fff; display:inline-block; padding:14px; border-radius:14px">
+      <img id="qr-img" alt="QR Code" style="width:260px; height:260px; display:block">
+    </div>
+    <ol style="text-align:left; max-width:360px; margin:18px auto 0; color:var(--muted); line-height:1.9">
+      <li>Abra o <b>WhatsApp</b> no celular</li>
+      <li>Toque em <b>Aparelhos conectados</b></li>
+      <li>Toque em <b>Conectar um aparelho</b></li>
+      <li>Aponte a câmera para o QR acima</li>
+    </ol>
+    <p class="hint">O QR se atualiza sozinho de tempos em tempos.</p>
+  </div>
+
+  <!-- Conectado -->
+  <div id="conectado-area" style="margin-top:20px; display:none">
+    <p style="font-size:18px">✅ <b>WhatsApp conectado!</b></p>
+    <p class="sub">Agora as mensagens de rastreio serão enviadas por este WhatsApp.</p>
+    <form method="post" action="/whatsapp/desconectar" style="margin-top:14px"
+          onsubmit="return confirm('Desconectar este WhatsApp?')">
+      <button class="btn-ghost">Desconectar</button>
+    </form>
+  </div>
+
+  <!-- Carregando -->
+  <div id="carregando-area" style="margin-top:20px">
+    <p class="sub">Carregando conexão...</p>
+  </div>
+</div>
+
+<script>
+  const elStatus = document.getElementById('status');
+  const elQrArea = document.getElementById('qr-area');
+  const elQrImg = document.getElementById('qr-img');
+  const elConectado = document.getElementById('conectado-area');
+  const elCarregando = document.getElementById('carregando-area');
+  let conectado = false;
+
+  function setStatus(txt, cls) { elStatus.textContent = txt; elStatus.className = 'badge ' + cls; }
+
+  async function checarEstado() {
+    try {
+      const r = await fetch('/whatsapp/state');
+      const d = await r.json();
+      if (d.state === 'open') {
+        conectado = true;
+        setStatus('Conectado', 'ok');
+        elQrArea.style.display = 'none';
+        elCarregando.style.display = 'none';
+        elConectado.style.display = 'block';
+        return true;
+      }
+      setStatus('Não conectado', 'warn');
+      return false;
+    } catch (e) { setStatus('Erro ao verificar', 'err'); return false; }
+  }
+
+  async function carregarQr() {
+    if (conectado) return;
+    try {
+      const r = await fetch('/whatsapp/qr');
+      const d = await r.json();
+      if (d.connected) { checarEstado(); return; }
+      if (d.qr) {
+        elQrImg.src = d.qr;
+        elCarregando.style.display = 'none';
+        elQrArea.style.display = 'block';
+      }
+    } catch (e) { /* tenta de novo no próximo ciclo */ }
+  }
+
+  async function loop() {
+    const ok = await checarEstado();
+    if (!ok) await carregarQr();
+  }
+
+  // Primeira carga e atualização periódica (estado a cada 3s, QR renova a cada ~20s)
+  loop();
+  setInterval(checarEstado, 3000);
+  setInterval(() => { if (!conectado) carregarQr(); }, 20000);
+</script>
+
+<%- include('partials/shell_end') %>

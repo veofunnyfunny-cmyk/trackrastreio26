@@ -7,6 +7,7 @@ const { requireLogin, baseUrl } = require('../middleware');
 const { notificarCliente } = require('../services/notify');
 const { gerarCodigo } = require('../services/tracking');
 const { testarConexao } = require('../services/whatsapp');
+const evolution = require('../services/evolution');
 
 const router = express.Router();
 router.use(requireLogin);
@@ -105,6 +106,38 @@ router.post('/config', (req, res) => {
 router.post('/config/testar-whatsapp', async (req, res) => {
   const r = await testarConexao(req.user);
   res.json(r);
+});
+
+// ---- Conectar WhatsApp via QR (Evolution) ---------------------------------
+router.get('/whatsapp', (req, res) => {
+  res.render('whatsapp', { configurado: evolution.isConfigured() });
+});
+
+// Retorna o QR code (ou avisa que já está conectado). Chamado pela tela via fetch.
+router.get('/whatsapp/qr', async (req, res) => {
+  if (!evolution.isConfigured()) return res.json({ erro: 'Evolution não configurado no servidor.' });
+  await evolution.ensureInstance(req.user);
+  const r = await evolution.getQr(req.user);
+  res.json(r);
+});
+
+// Estado da conexão. Quando conecta ('open'), grava a config de envio do cliente.
+router.get('/whatsapp/state', async (req, res) => {
+  if (!evolution.isConfigured()) return res.json({ state: 'unconfigured' });
+  const state = await evolution.getState(req.user);
+  if (state === 'open') {
+    db.prepare(`
+      UPDATE users SET wa_provider='evolution', wa_api_url=?, wa_instance=?, wa_api_token=?, send_mode='real'
+      WHERE id=?
+    `).run(evolution.EVOLUTION_URL, evolution.instanceName(req.user), evolution.EVOLUTION_API_KEY, req.user.id);
+  }
+  res.json({ state });
+});
+
+// Desconecta o WhatsApp do cliente.
+router.post('/whatsapp/desconectar', async (req, res) => {
+  await evolution.logout(req.user);
+  res.redirect('/whatsapp');
 });
 
 // ---- Lista de rastreios ---------------------------------------------------
