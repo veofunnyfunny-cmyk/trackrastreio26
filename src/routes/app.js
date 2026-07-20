@@ -75,11 +75,9 @@ router.get('/mensagens', (req, res) => {
 
 router.post('/mensagens', (req, res) => {
   db.prepare(`
-    UPDATE users SET store_name=@store_name, msg_wpp=@msg_wpp,
-      email_subject=@email_subject, msg_email=@msg_email WHERE id=@id
+    UPDATE users SET msg_wpp=@msg_wpp, email_subject=@email_subject, msg_email=@msg_email WHERE id=@id
   `).run({
     id: req.user.id,
-    store_name: (req.body.store_name || '').trim() || 'Minha Loja',
     msg_wpp: req.body.msg_wpp || '',
     email_subject: req.body.email_subject || '',
     msg_email: req.body.msg_email || '',
@@ -95,14 +93,14 @@ router.get('/config', (req, res) => {
 router.post('/config', (req, res) => {
   db.prepare(`
     UPDATE users SET
-      send_mode=@send_mode,
+      store_name=@store_name,
       wa_provider=@wa_provider, wa_api_url=@wa_api_url, wa_api_token=@wa_api_token, wa_instance=@wa_instance,
       wa_client_token=@wa_client_token,
       smtp_host=@smtp_host, smtp_port=@smtp_port, smtp_user=@smtp_user, smtp_pass=@smtp_pass, smtp_from=@smtp_from
     WHERE id=@id
   `).run({
     id: req.user.id,
-    send_mode: req.body.send_mode === 'real' ? 'real' : 'simulado',
+    store_name: (req.body.store_name || '').trim() || 'Minha Loja',
     wa_provider: req.body.wa_provider || '',
     wa_api_url: req.body.wa_api_url || '',
     wa_api_token: req.body.wa_api_token || '',

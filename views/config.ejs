@@ -6,6 +6,14 @@
 <% if (salvo) { %><div class="alert ok">Configurações salvas!</div><% } %>
 
 <form method="post" action="/config">
+  <!-- ================= LOJA ================= -->
+  <div class="card">
+    <h2 style="margin-top:0">🏪 Sua loja</h2>
+    <label>Nome da loja</label>
+    <input type="text" name="store_name" value="<%= user.store_name %>" placeholder="Ex.: Loja do João">
+    <p class="hint">Esse nome aparece no topo da página de rastreio que o seu cliente vê, e na variável <code>{loja}</code> das mensagens.</p>
+  </div>
+
   <!-- ================= WHATSAPP ================= -->
   <div class="card">
     <h2 style="margin-top:0">💬 Conectar o WhatsApp</h2>

@@ -178,8 +178,7 @@ a.badge:hover { text-decoration: none; filter: brightness(.97); }
    ============================================================ */
 .track-page { max-width: 620px; margin: 0 auto; padding: 40px 20px 60px; }
 .track-head { text-align: center; margin-bottom: 24px; }
-.track-store { display: inline-flex; align-items: center; gap: 9px; font-weight: 700; font-size: 17px; color: var(--text); }
-.track-store .logo-mark { width: 30px; height: 30px; font-size: 16px; border-radius: 8px; }
+.track-store { display: inline-flex; align-items: center; gap: 9px; font-weight: 700; font-size: 20px; letter-spacing: -.01em; color: var(--text); }
 
 .track-card {
   background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
