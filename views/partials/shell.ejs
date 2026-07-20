@@ -2,8 +2,13 @@
 <div class="shell">
   <aside class="sidebar">
     <div class="brand">📦 Rastreio<small><%= user.store_name %></small></div>
+    <div class="saldo-box">
+      <span class="saldo-lbl">Saldo</span>
+      <a href="/saldo" class="saldo-val"><%= typeof saldoBRL !== 'undefined' ? saldoBRL : 'R$ 0,00' %></a>
+    </div>
     <nav class="nav">
       <a href="/"          class="<%= active==='dashboard' ? 'active' : '' %>">Painel</a>
+      <a href="/saldo"     class="<%= active==='saldo'     ? 'active' : '' %>">Saldo & Recarga</a>
       <a href="/webhook"   class="<%= active==='webhook'   ? 'active' : '' %>">Webhook</a>
       <a href="/whatsapp"  class="<%= active==='whatsapp'  ? 'active' : '' %>">Conectar WhatsApp</a>
       <a href="/mensagens" class="<%= active==='mensagens' ? 'active' : '' %>">Mensagens</a>

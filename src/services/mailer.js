@@ -9,11 +9,6 @@ async function enviarEmail(user, destino, assunto, texto) {
     return { status: 'erro', error: 'E-mail do cliente não informado' };
   }
 
-  if (user.send_mode !== 'real') {
-    console.log(`\n[EMAIL SIMULADO] para ${destino}\nAssunto: ${assunto}\n${texto}\n`);
-    return { status: 'simulado', destination: destino };
-  }
-
   if (!user.smtp_host || !user.smtp_user) {
     return { status: 'erro', destination: destino, error: 'SMTP não configurado' };
   }

@@ -6,17 +6,6 @@
 <% if (salvo) { %><div class="alert ok">Configurações salvas!</div><% } %>
 
 <form method="post" action="/config">
-  <div class="card">
-    <h2 style="margin-top:0">Modo de envio</h2>
-    <label>
-      <select name="send_mode">
-        <option value="simulado" <%= user.send_mode!=='real' ? 'selected' : '' %>>Simulado — só registra no log (para testes)</option>
-        <option value="real"     <%= user.send_mode==='real' ? 'selected' : '' %>>Real — envia de verdade (precisa conectar abaixo)</option>
-      </select>
-    </label>
-    <p class="hint">No modo simulado nada é enviado; a mensagem aparece na aba Logs. Ótimo para testar tudo antes de conectar o WhatsApp.</p>
-  </div>
-
   <!-- ================= WHATSAPP ================= -->
   <div class="card">
     <h2 style="margin-top:0">💬 Conectar o WhatsApp</h2>

@@ -24,11 +24,6 @@ async function enviarWhatsapp(user, telefone, texto) {
     return { status: 'erro', error: 'Telefone do cliente não informado' };
   }
 
-  if (user.send_mode !== 'real') {
-    console.log(`\n[WHATSAPP SIMULADO] para ${destino}:\n${texto}\n`);
-    return { status: 'simulado', destination: destino };
-  }
-
   try {
     const provider = (user.wa_provider || '').toLowerCase();
     let url, options;

@@ -41,6 +41,14 @@ a:hover { text-decoration: underline; }
 .nav a.active { background: var(--brand); color: #fff; }
 .sidebar form { margin-top: 18px; }
 
+.saldo-box {
+  background: linear-gradient(135deg, #1c2340, #232a4a); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 18px;
+}
+.saldo-box .saldo-lbl { display: block; color: var(--muted); font-size: 12px; }
+.saldo-box .saldo-val { display: block; font-size: 22px; font-weight: 700; color: #6ee7a0; }
+.saldo-box .saldo-val:hover { text-decoration: none; opacity: .85; }
+
 .main { flex: 1; padding: 34px 40px; max-width: 1000px; }
 .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; }
 h1 { font-size: 26px; margin: 0 0 4px; }

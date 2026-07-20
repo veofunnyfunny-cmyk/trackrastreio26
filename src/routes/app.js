@@ -8,9 +8,18 @@ const { notificarCliente } = require('../services/notify');
 const { gerarCodigo } = require('../services/tracking');
 const { testarConexao } = require('../services/whatsapp');
 const evolution = require('../services/evolution');
+const billing = require('../services/billing');
 
 const router = express.Router();
 router.use(requireLogin);
+
+// Deixa o saldo formatado e os preços disponíveis em todas as telas do painel.
+router.use((req, res, next) => {
+  res.locals.saldo = billing.saldo(req.user.id);
+  res.locals.saldoBRL = billing.formatBRL(res.locals.saldo);
+  res.locals.billing = billing;
+  next();
+});
 
 // ---- Dashboard ------------------------------------------------------------
 router.get('/', (req, res) => {
@@ -29,14 +38,16 @@ router.get('/webhook', (req, res) => {
   res.render('webhook', { base: baseUrl(req), salvo: req.query.salvo });
 });
 
-router.post('/webhook/regenerar', (req, res) => {
+router.post('/webhook/acao/regenerar', (req, res) => {
   const token = crypto.randomBytes(18).toString('hex');
   db.prepare('UPDATE users SET webhook_token = ? WHERE id = ?').run(token, req.user.id);
   res.redirect('/webhook?salvo=1');
 });
 
 // Dispara um pedido de TESTE (simula o gateway chamando o webhook).
-router.post('/webhook/testar', async (req, res) => {
+// Caminho com 2 segmentos (/webhook/acao/...) para não colidir com a rota
+// pública POST /webhook/:token.
+router.post('/webhook/acao/testar', async (req, res) => {
   const code = gerarCodigo();
   const info = db.prepare(`
     INSERT INTO trackings (user_id, code, gateway_order_id, customer_name, customer_email, customer_phone, status, raw_payload)
@@ -175,6 +186,26 @@ router.get('/logs', (req, res) => {
     'SELECT * FROM message_logs WHERE user_id = ? ORDER BY id DESC LIMIT 100'
   ).all(req.user.id);
   res.render('logs', { logs });
+});
+
+// ---- Saldo e extrato ------------------------------------------------------
+router.get('/saldo', (req, res) => {
+  const transacoes = db.prepare(
+    'SELECT * FROM transactions WHERE user_id = ? ORDER BY id DESC LIMIT 100'
+  ).all(req.user.id);
+  res.render('saldo', {
+    transacoes,
+    testTopup: process.env.TEST_TOPUP === '1',
+    salvo: req.query.salvo,
+  });
+});
+
+// Recarga de TESTE (só funciona se TEST_TOPUP=1 no ambiente). Adiciona saldo fake.
+router.post('/saldo/recarga-teste', (req, res) => {
+  if (process.env.TEST_TOPUP !== '1') return res.redirect('/saldo');
+  const valor = Math.min(Math.max(Number(req.body.valor) || 10, 1), 1000); // R$1 a R$1000
+  billing.creditar(req.user.id, Math.round(valor * 100), 'Recarga de teste');
+  res.redirect('/saldo?salvo=1');
 });
 
 module.exports = router;

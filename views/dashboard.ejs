@@ -3,18 +3,28 @@
 
 <div class="topbar">
   <div><h1>Painel</h1><p class="sub">Bem-vindo, <%= user.name %></p></div>
-  <span class="badge <%= user.send_mode==='real' ? 'ok' : 'warn' %>">
-    Modo de envio: <%= user.send_mode === 'real' ? 'REAL' : 'SIMULADO' %>
-  </span>
+  <a href="/saldo" class="badge <%= saldo > 0 ? 'ok' : 'err' %>" style="font-size:14px; padding:7px 14px">
+    Saldo: <%= saldoBRL %>
+  </a>
 </div>
+
+<% if (saldo <= 0) { %>
+  <div class="alert err">Seu saldo está zerado — as mensagens não serão enviadas. <a href="/saldo">Adicionar saldo</a>.</div>
+<% } %>
 
 <div class="grid cols-3">
   <div class="card stat"><div class="num"><%= stats.total %></div><div class="lbl">Rastreios criados</div></div>
   <div class="card stat"><div class="num"><%= stats.msgs %></div><div class="lbl">Mensagens registradas</div></div>
   <div class="card stat">
-    <div class="num"><a href="/webhook">Webhook</a></div>
-    <div class="lbl">Configure a integração</div>
+    <div class="num" style="color:#6ee7a0"><%= saldoBRL %></div>
+    <div class="lbl">Saldo disponível • <a href="/saldo">recarregar</a></div>
   </div>
+</div>
+
+<div class="card" style="display:flex; gap:24px; flex-wrap:wrap; align-items:center">
+  <div><b>💬 WhatsApp:</b> <%= billing.formatBRL(billing.PRECOS.whatsapp) %> por mensagem</div>
+  <div><b>✉️ E-mail:</b> <%= billing.formatBRL(billing.PRECOS.email) %> por mensagem</div>
+  <div class="sub" style="font-size:13px">Cobrado só quando a mensagem é enviada com sucesso.</div>
 </div>
 
 <div class="card">

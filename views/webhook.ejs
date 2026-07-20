@@ -14,7 +14,7 @@
   <p class="hint">Método: <code>POST</code> &nbsp;•&nbsp; Corpo: <code>JSON</code>. O sistema tenta ler
     <code>nome</code>, <code>email</code> e <code>telefone/whatsapp</code> automaticamente do payload do gateway.</p>
 
-  <form method="post" action="/webhook/regenerar" style="margin-top:14px"
+  <form method="post" action="/webhook/acao/regenerar" style="margin-top:14px"
         onsubmit="return confirm('Regenerar o token vai invalidar a URL atual. Continuar?')">
     <button class="btn-ghost btn-sm">Regenerar token</button>
   </form>
@@ -23,7 +23,7 @@
 <div class="card">
   <h2 style="margin-top:0">Testar agora</h2>
   <p class="sub">Cria um pedido fictício, gera um código de rastreio aleatório e dispara as mensagens (no modo atual).</p>
-  <form method="post" action="/webhook/testar">
+  <form method="post" action="/webhook/acao/testar">
     <button>Disparar pedido de teste</button>
   </form>
 </div>

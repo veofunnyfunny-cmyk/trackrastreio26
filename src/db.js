@@ -100,5 +100,25 @@ if (!userCols.includes('wa_client_token')) {
   // Token de segurança da conta Z-API (header Client-Token). Opcional.
   db.exec("ALTER TABLE users ADD COLUMN wa_client_token TEXT DEFAULT ''");
 }
+if (!userCols.includes('balance_cents')) {
+  // Saldo do cliente em CENTAVOS (inteiro, para não ter erro de arredondamento).
+  db.exec('ALTER TABLE users ADD COLUMN balance_cents INTEGER NOT NULL DEFAULT 0');
+}
+
+// Extrato de transações (créditos = recargas, débitos = mensagens enviadas).
+db.exec(`
+CREATE TABLE IF NOT EXISTS transactions (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  kind          TEXT    NOT NULL,               -- 'credito' | 'debito'
+  amount_cents  INTEGER NOT NULL,               -- sempre positivo
+  description   TEXT,
+  channel       TEXT,                           -- 'whatsapp' | 'email' | NULL
+  tracking_id   INTEGER REFERENCES trackings(id) ON DELETE SET NULL,
+  provider_ref  TEXT,                           -- id do pagamento no gateway (recargas)
+  created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_tx_user ON transactions(user_id);
+`);
 
 module.exports = db;
