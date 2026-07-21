@@ -6,7 +6,6 @@ const db = require('../db');
 const { requireLogin, baseUrl } = require('../middleware');
 const { notificarCliente } = require('../services/notify');
 const { gerarCodigo } = require('../services/tracking');
-const { testarConexao } = require('../services/whatsapp');
 const evolution = require('../services/evolution');
 const billing = require('../services/billing');
 const stages = require('../services/stages');
@@ -108,30 +107,20 @@ router.post('/config', (req, res) => {
   // Só troca a senha se uma nova foi digitada (senão mantém a atual).
   const smtp_pass = req.body.smtp_pass ? req.body.smtp_pass : (req.user.smtp_pass || '');
 
+  // Obs.: os campos de WhatsApp (wa_*) NÃO são tocados aqui — a conexão é
+  // gerenciada pela aba "Conectar WhatsApp" (QR do Evolution). Salvar as
+  // configurações não pode derrubar o WhatsApp conectado.
   db.prepare(`
     UPDATE users SET
       store_name=@store_name,
-      wa_provider=@wa_provider, wa_api_url=@wa_api_url, wa_api_token=@wa_api_token, wa_instance=@wa_instance,
-      wa_client_token=@wa_client_token,
       smtp_host=@smtp_host, smtp_port=@smtp_port, smtp_user=@smtp_user, smtp_pass=@smtp_pass, smtp_from=@smtp_from
     WHERE id=@id
   `).run({
     id: req.user.id,
     store_name,
-    wa_provider: req.body.wa_provider || '',
-    wa_api_url: req.body.wa_api_url || '',
-    wa_api_token: req.body.wa_api_token || '',
-    wa_instance: req.body.wa_instance || '',
-    wa_client_token: req.body.wa_client_token || '',
     smtp_host, smtp_port, smtp_user, smtp_pass, smtp_from,
   });
   res.redirect('/config?salvo=1');
-});
-
-// Testa a conexão do WhatsApp (usado pelo botão "Testar conexão"). Retorna JSON.
-router.post('/config/testar-whatsapp', async (req, res) => {
-  const r = await testarConexao(req.user);
-  res.json(r);
 });
 
 // ---- Conectar WhatsApp via QR (Evolution) ---------------------------------

@@ -14,55 +14,12 @@
     <p class="hint">Esse nome aparece no topo da página de rastreio que o seu cliente vê, e na variável <code>{loja}</code> das mensagens.</p>
   </div>
 
-  <!-- ================= WHATSAPP ================= -->
-  <div class="card">
-    <h2 style="margin-top:0">💬 Conectar o WhatsApp</h2>
-
-    <div class="alert info">
-      <b>Como conectar (leva 2 minutos):</b>
-      <ol style="margin:10px 0 0; padding-left:18px; line-height:1.9">
-        <li>Crie uma conta no <a href="https://www.z-api.io" target="_blank">Z-API</a> e crie uma <b>instância</b>.</li>
-        <li>No painel do Z-API, leia o <b>QR Code</b> com seu WhatsApp (Aparelhos conectados → Conectar aparelho).</li>
-        <li>Ainda no Z-API, copie os dados <b>ID da Instância</b>, <b>Token</b> e <b>Token de Segurança</b> e cole abaixo.</li>
-        <li>Clique em <b>Salvar</b> e depois em <b>Testar conexão</b>.</li>
-      </ol>
+  <div class="card" style="display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap">
+    <div>
+      <h2 style="margin:0">💬 WhatsApp</h2>
+      <p class="sub" style="font-size:13.5px; margin-top:4px">O WhatsApp é conectado por QR code na aba dedicada.</p>
     </div>
-
-    <label>Provedor</label>
-    <select name="wa_provider" id="wa_provider" onchange="toggleProvider()">
-      <option value="z-api"    <%= (user.wa_provider==='z-api' || !user.wa_provider) ? 'selected' : '' %>>Z-API (recomendado)</option>
-      <option value="evolution"<%= user.wa_provider==='evolution' ? 'selected' : '' %>>Evolution API</option>
-      <option value=""         <%= user.wa_provider==='' && user.wa_api_url ? 'selected' : '' %>>Outro (genérico)</option>
-    </select>
-
-    <!-- URL base: só aparece para Evolution/Outro. Para Z-API é automática. -->
-    <div id="wa_url_row" style="display:none">
-      <label>URL base da API</label>
-      <input name="wa_api_url" id="wa_api_url" value="<%= user.wa_api_url %>" placeholder="https://seu-servidor-evolution.com">
-    </div>
-
-    <div class="row">
-      <div>
-        <label>ID da Instância</label>
-        <input name="wa_instance" value="<%= user.wa_instance %>" placeholder="ex.: 3D8B1F...">
-        <p class="hint">No Z-API: dentro da sua instância, campo <b>ID da instância</b>.</p>
-      </div>
-      <div>
-        <label>Token</label>
-        <input name="wa_api_token" value="<%= user.wa_api_token %>" placeholder="token da instância">
-        <p class="hint">No Z-API: campo <b>Token</b> da instância.</p>
-      </div>
-    </div>
-
-    <label>Token de Segurança (Client-Token)</label>
-    <input name="wa_client_token" value="<%= user.wa_client_token || '' %>" placeholder="cole aqui (Z-API › Segurança › Account Security Token)">
-    <p class="hint">No Z-API fica em <b>Segurança da conta</b>. Se sua conta não usa, pode deixar em branco.</p>
-
-    <div style="margin-top:14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap">
-      <button type="button" class="btn-ghost" onclick="testarWhatsapp(this)">Testar conexão</button>
-      <span id="wa_test_result" class="hint" style="margin:0"></span>
-    </div>
-    <p class="hint">Salve as configurações antes de testar.</p>
+    <a href="/whatsapp" class="btn">Conectar WhatsApp</a>
   </div>
 
   <!-- ================= EMAIL ================= -->
@@ -107,13 +64,6 @@
 </form>
 
 <script>
-  function toggleProvider() {
-    var p = document.getElementById('wa_provider').value;
-    // Para Z-API a URL é fixa (api.z-api.io), então escondemos o campo.
-    document.getElementById('wa_url_row').style.display = (p === 'z-api') ? 'none' : 'block';
-  }
-  toggleProvider();
-
   // ---- Detecção automática do provedor de e-mail ----
   var SMTP_PROVIDERS = {
     'gmail.com': { nome: 'Gmail', appPass: true },
@@ -151,24 +101,6 @@
     }
   }
   detectarEmail();
-
-  async function testarWhatsapp(btn) {
-    var out = document.getElementById('wa_test_result');
-    out.style.color = 'var(--muted)';
-    out.textContent = 'Testando...';
-    btn.disabled = true;
-    try {
-      var resp = await fetch('/config/testar-whatsapp', { method: 'POST' });
-      var data = await resp.json();
-      out.style.color = data.ok && data.connected ? 'var(--success)' : (data.ok ? 'var(--warn)' : 'var(--danger)');
-      out.textContent = data.message || (data.ok ? 'OK' : 'Falhou');
-    } catch (e) {
-      out.style.color = 'var(--danger)';
-      out.textContent = 'Erro ao testar: ' + e.message;
-    } finally {
-      btn.disabled = false;
-    }
-  }
 </script>
 
 <%- include('partials/shell_end') %>
