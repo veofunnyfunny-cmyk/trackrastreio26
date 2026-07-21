@@ -116,6 +116,10 @@ if (!userCols.includes('notify_whatsapp')) {
 if (!userCols.includes('notify_email')) {
   db.exec('ALTER TABLE users ADD COLUMN notify_email INTEGER NOT NULL DEFAULT 1');
 }
+// Nome do arquivo da logo da loja (aparece na página de rastreio).
+if (!userCols.includes('logo_file')) {
+  db.exec("ALTER TABLE users ADD COLUMN logo_file TEXT DEFAULT ''");
+}
 
 // Endereço de destino do comprador (usado na jornada de rastreio).
 const trackCols = db.prepare('PRAGMA table_info(trackings)').all().map((c) => c.name);

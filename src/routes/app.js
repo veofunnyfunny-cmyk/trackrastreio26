@@ -14,6 +14,7 @@ const recharge = require('../services/recharge');
 const QRCode = require('qrcode');
 const smtpProviders = require('../services/smtpProviders');
 const mailer = require('../services/mailer');
+const { uploadLogo } = require('../services/uploads');
 
 const router = express.Router();
 router.use(requireLogin);
@@ -93,7 +94,24 @@ router.post('/mensagens', (req, res) => {
 
 // ---- Configurações de envio (modo, WhatsApp, SMTP) ------------------------
 router.get('/config', (req, res) => {
-  res.render('config', { salvo: req.query.salvo, emailCentral: mailer.emailCentralAtivo() });
+  res.render('config', { salvo: req.query.salvo, erro: req.query.erro, emailCentral: mailer.emailCentralAtivo() });
+});
+
+// Upload da logo da loja (aparece na página de rastreio do cliente).
+router.post('/config/logo', (req, res) => {
+  uploadLogo(req, res, (err) => {
+    if (err) return res.redirect('/config?erro=' + encodeURIComponent(err.message));
+    if (req.file) {
+      db.prepare('UPDATE users SET logo_file = ? WHERE id = ?').run(req.file.filename, req.user.id);
+    }
+    res.redirect('/config?salvo=1');
+  });
+});
+
+// Remove a logo da loja.
+router.post('/config/logo/remover', (req, res) => {
+  db.prepare("UPDATE users SET logo_file = '' WHERE id = ?").run(req.user.id);
+  res.redirect('/config?salvo=1');
 });
 
 router.post('/config', (req, res) => {

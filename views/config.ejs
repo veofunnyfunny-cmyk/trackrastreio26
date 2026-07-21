@@ -4,6 +4,26 @@
 <div class="topbar"><div><h1>Configurações de envio</h1><p class="sub">Escolha como as mensagens são entregues.</p></div></div>
 
 <% if (salvo) { %><div class="alert ok">Configurações salvas!</div><% } %>
+<% if (typeof erro !== 'undefined' && erro) { %><div class="alert err"><%= erro %></div><% } %>
+
+<!-- ================= LOGO DA LOJA (upload próprio) ================= -->
+<div class="card">
+  <h2 style="margin-top:0">🖼️ Logo da loja</h2>
+  <p class="hint" style="margin-top:0">Aparece no topo da página de rastreio que o seu cliente vê — dá mais confiança pra ele saber de onde é a compra.</p>
+  <% if (user.logo_file) { %>
+    <div style="margin:14px 0; padding:14px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; display:inline-block">
+      <img src="/loja-logo/<%= user.id %>?v=<%= Date.now() %>" alt="Logo" style="max-height:70px; max-width:200px; display:block">
+    </div>
+    <form method="post" action="/config/logo/remover" style="margin:0 0 6px" onsubmit="return confirm('Remover a logo?')">
+      <button class="btn-ghost btn-sm">Remover logo</button>
+    </form>
+  <% } %>
+  <form method="post" action="/config/logo" enctype="multipart/form-data" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:8px">
+    <input type="file" name="logo" accept="image/*" required style="flex:1; min-width:200px">
+    <button>Enviar logo</button>
+  </form>
+  <p class="hint">Formatos: PNG, JPG, WEBP. Máx. 3 MB. Recomendado: fundo transparente (PNG).</p>
+</div>
 
 <form method="post" action="/config">
   <!-- ================= LOJA ================= -->

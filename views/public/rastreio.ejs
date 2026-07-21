@@ -13,6 +13,9 @@
   <% } %>
 
   <div class="track-head">
+    <% if (logoUrl) { %>
+      <img class="track-logo" src="<%= logoUrl %>" alt="<%= loja %>">
+    <% } %>
     <span class="track-store"><%= loja || 'Rastreamento' %></span>
   </div>
 

@@ -1,11 +1,22 @@
 // Página pública de rastreio (o que o cliente final vê).
 const express = require('express');
+const path = require('path');
 const db = require('../db');
 const stages = require('../services/stages');
 const recharge = require('../services/recharge');
 const billing = require('../services/billing');
+const { UPLOAD_DIR } = require('../services/uploads');
 
 const router = express.Router();
+
+// Serve a logo de uma loja (usada na página de rastreio).
+router.get('/loja-logo/:id', (req, res) => {
+  const u = db.prepare('SELECT logo_file FROM users WHERE id = ?').get(req.params.id);
+  if (!u || !u.logo_file) return res.status(404).end();
+  res.sendFile(path.join(UPLOAD_DIR, path.basename(u.logo_file)), (err) => {
+    if (err && !res.headersSent) res.status(404).end();
+  });
+});
 
 // Crédito manual (admin) — para dar saldo de teste sem pagamento.
 // Só funciona se ADMIN_TOKEN estiver definido e for enviado no header.
@@ -50,7 +61,7 @@ router.get('/rastreio/:code', (req, res) => {
   if (!tracking) {
     return res.status(404).render('public/buscar', { erro: 'Código não encontrado: ' + code });
   }
-  const user = db.prepare('SELECT store_name FROM users WHERE id = ?').get(tracking.user_id);
+  const user = db.prepare('SELECT store_name, logo_file FROM users WHERE id = ?').get(tracking.user_id);
 
   // Jornada automática (avança com o tempo). ?dia=N permite pré-visualizar
   // qualquer ponto da jornada sem esperar (modo de teste).
@@ -61,6 +72,7 @@ router.get('/rastreio/:code', (req, res) => {
     tracking,
     jornada,
     loja: user ? user.store_name : '',
+    logoUrl: user && user.logo_file ? '/loja-logo/' + tracking.user_id : null,
     preview: overrideDias !== undefined ? String(overrideDias) : null,
   });
 });
