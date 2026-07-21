@@ -180,9 +180,8 @@ a.badge:hover { text-decoration: none; filter: brightness(.97); }
 
 .auth-hero {
   flex: 1; overflow: hidden;
-  /* A arte completa (marca + textos + destaques) está na própria imagem.
-     Exibimos ela inteira (contain) sobre um azul que combina com o fundo dela. */
-  background: #0b1a4d url('/static/hero.png') center center / contain no-repeat;
+  /* Arte paisagem (marca + textos + destaques) preenchendo o painel inteiro. */
+  background: #0a1640 url('/static/hero.png') center center / cover no-repeat;
 }
 .hero-brand {
   position: absolute; top: 40px; left: 56px; display: flex; align-items: center; gap: 11px;
