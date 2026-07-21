@@ -30,7 +30,9 @@ async function conferirEcreditar(txid) {
   if (charge.status === 'paid') return { status: 'approved', creditado: false };
 
   const r = await pix.verificar(txid);
-  if (r.status === 'approved') {
+  // O Roundfy usa 'paid' na verificação e 'approved' na listagem — aceitamos os dois.
+  const pago = r.status === 'paid' || r.status === 'approved';
+  if (pago) {
     const creditado = marcarPagoECreditar(charge.id);
     return { status: 'approved', creditado };
   }
