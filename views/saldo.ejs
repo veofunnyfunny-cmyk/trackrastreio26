@@ -21,16 +21,16 @@
     <% if (pixConfigured) { %>
       <form method="post" action="/saldo/pix/criar">
         <label>Valor da recarga (R$)</label>
-        <input type="number" name="valor" value="20" min="5" step="1" required>
+        <input type="number" name="valor" value="30" min="30" step="1" required>
         <div style="display:flex; gap:8px; margin:10px 0 4px; flex-wrap:wrap">
-          <% [20, 50, 100, 200].forEach(v => { %>
+          <% [30, 50, 100, 200].forEach(v => { %>
             <button type="button" class="btn-ghost btn-sm" onclick="document.querySelector('[name=valor]').value=<%= v %>">R$ <%= v %></button>
           <% }) %>
         </div>
         <label>CPF do pagador</label>
         <input type="text" name="cpf" placeholder="Somente números" maxlength="14" required>
         <button style="width:100%; margin-top:16px">Gerar Pix</button>
-        <p class="hint">Valor mínimo R$ 5,00. Você recebe um QR code para pagar.</p>
+        <p class="hint">Valor mínimo R$ 30,00. Você recebe um QR code para pagar.</p>
       </form>
     <% } else { %>
       <p class="sub">A recarga por Pix ainda não está configurada neste ambiente.</p>

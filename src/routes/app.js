@@ -251,8 +251,8 @@ router.post('/saldo/pix/criar', async (req, res) => {
 
   const valor = Number(String(req.body.valor).replace(',', '.'));
   const amountCents = Math.round(valor * 100);
-  if (!amountCents || amountCents < 500) {          // mínimo R$ 5,00
-    return renderSaldoErro(req, res, 'Valor mínimo de recarga: R$ 5,00.');
+  if (!amountCents || amountCents < 3000) {         // mínimo R$ 30,00
+    return renderSaldoErro(req, res, 'Valor mínimo de recarga: R$ 30,00.');
   }
 
   const cpf = (req.body.cpf || '').replace(/\D/g, '');
