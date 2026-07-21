@@ -179,16 +179,10 @@ a.badge:hover { text-decoration: none; filter: brightness(.97); }
 .auth-split { display: flex; min-height: 100vh; }
 
 .auth-hero {
-  flex: 1; position: relative; overflow: hidden; color: #fff;
-  padding: 56px 56px; display: flex; flex-direction: column; justify-content: center;
-  /* Imagem de fundo (coloque /public/hero.jpg). O gradiente por cima garante
-     que o texto branco fique legível sobre qualquer imagem. */
-  background-color: #172554;
-  background-image:
-    linear-gradient(140deg, rgba(23,37,84,.82) 0%, rgba(30,64,175,.60) 50%, rgba(37,99,235,.52) 100%),
-    url('/static/hero.jpg');
-  background-size: cover;
-  background-position: center;
+  flex: 1; overflow: hidden;
+  /* A arte completa (marca + textos + destaques) está na própria imagem.
+     Exibimos ela inteira (contain) sobre um azul que combina com o fundo dela. */
+  background: #0b1a4d url('/static/hero.png') center center / contain no-repeat;
 }
 .hero-brand {
   position: absolute; top: 40px; left: 56px; display: flex; align-items: center; gap: 11px;
