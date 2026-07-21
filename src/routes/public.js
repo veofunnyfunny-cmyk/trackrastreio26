@@ -3,8 +3,28 @@ const express = require('express');
 const db = require('../db');
 const stages = require('../services/stages');
 const recharge = require('../services/recharge');
+const billing = require('../services/billing');
 
 const router = express.Router();
+
+// Crédito manual (admin) — para dar saldo de teste sem pagamento.
+// Só funciona se ADMIN_TOKEN estiver definido e for enviado no header.
+// Ex.: curl -X POST .../admin/creditar -H "x-admin-token: XXX" -d '{"email":"a@a.com","valor":50}'
+router.post('/admin/creditar', (req, res) => {
+  const token = process.env.ADMIN_TOKEN;
+  if (!token || req.headers['x-admin-token'] !== token) {
+    return res.status(404).json({ ok: false }); // some quando não autorizado
+  }
+  const email = (req.body.email || '').trim().toLowerCase();
+  const valor = Number(String(req.body.valor).replace(',', '.'));
+  if (!email || !valor || valor <= 0) {
+    return res.status(400).json({ ok: false, error: 'email e valor (>0) são obrigatórios' });
+  }
+  const user = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+  if (!user) return res.status(404).json({ ok: false, error: 'usuário não encontrado' });
+  billing.creditar(user.id, Math.round(valor * 100), 'Crédito de teste (admin)');
+  res.json({ ok: true, email, saldo: billing.formatBRL(billing.saldo(user.id)) });
+});
 
 // Webhook do gateway Pix (Roundfy) avisando pagamento. É best-effort e pode
 // ser forjado, então NÃO confiamos no corpo: apenas usamos o txid para
