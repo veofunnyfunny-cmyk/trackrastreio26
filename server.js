@@ -3,6 +3,7 @@ require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
+const BetterSqliteStore = require('./src/services/sessionStore');
 
 const authRoutes = require('./src/routes/auth');
 const appRoutes = require('./src/routes/app');
@@ -28,8 +29,10 @@ app.use(express.urlencoded({ extended: true }));
 // Arquivos estáticos (CSS).
 app.use('/static', express.static(path.join(__dirname, 'public')));
 
-// Sessão de login.
+// Sessão de login — guardada no MESMO banco (no disco), para o usuário
+// continuar logado mesmo após reinícios/atualizações do servidor.
 app.use(session({
+  store: new BetterSqliteStore(),
   secret: process.env.SESSION_SECRET || 'troque-esse-segredo-em-producao',
   resave: false,
   saveUninitialized: false,

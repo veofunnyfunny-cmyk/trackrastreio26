@@ -1,22 +1,18 @@
 # Configuração do Render (Blueprint).
-# Ao conectar este repositório no Render como "Blueprint", ele cria o serviço
-# web automaticamente com estas configurações.
+# Ao conectar este repositório no Render como "Blueprint", ele cria/atualiza
+# o serviço web automaticamente com estas configurações.
 #
-# ---------------------------------------------------------------------------
-# TESTE (grátis): funciona como está. ATENÇÃO: no plano free o disco é
-# temporário — os dados (contas/vendas) resetam quando o serviço reinicia ou
-# dorme por inatividade. Bom para testar, não para uso real.
+# Plano STARTER com DISCO PERMANENTE: as contas e vendas ficam salvas para
+# sempre no disco (/var/data) e o serviço não dorme.
 #
-# USO REAL (dados permanentes): mude "plan: free" para "plan: starter" e
-# descomente o bloco "disk" + a variável DATA_DIR abaixo. Aí o banco fica
-# salvo no disco persistente e nunca some.
-# ---------------------------------------------------------------------------
+# As chaves secretas (Brevo, Roundfy) NÃO ficam aqui — cadastre no painel do
+# Render em Environment (elas não vão para o GitHub).
 
 services:
   - type: web
     name: trackrastreio26
     runtime: node
-    plan: free
+    plan: starter
     buildCommand: npm install
     startCommand: npm start
     envVars:
@@ -24,12 +20,9 @@ services:
         generateValue: true      # o Render gera um segredo aleatório
       - key: NODE_VERSION
         value: "22.15.0"
-      # Para dados permanentes (com disco), descomente as 2 linhas abaixo:
-      # - key: DATA_DIR
-      #   value: /var/data
-
-    # Para dados permanentes, mude o plan acima para "starter" e descomente:
-    # disk:
-    #   name: dados
-    #   mountPath: /var/data
-    #   sizeGB: 1
+      - key: DATA_DIR
+        value: /var/data         # onde ficam o banco e as sessões (no disco)
+    disk:
+      name: dados
+      mountPath: /var/data       # disco permanente montado aqui
+      sizeGB: 1
