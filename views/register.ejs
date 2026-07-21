@@ -1,21 +1,20 @@
 <%- include('partials/head', { title: 'Criar conta - Rastreio' }) %>
-<div class="center-wrap">
-  <div class="center-card">
-    <div class="card">
-      <div class="auth-brand">
-        <span class="logo-mark">📦</span>
-        <h1>Criar conta</h1>
-      </div>
-      <p class="sub">Comece a rastrear e notificar seus clientes</p>
+<div class="auth-split">
+  <%- include('partials/auth_hero') %>
+  <div class="auth-form-side">
+    <div class="form-inner">
+      <div class="mobile-brand"><span class="logo-mark">📦</span> Rastreio</div>
+      <h2>Criar sua conta</h2>
+      <p class="sub">Comece a rastrear e avisar seus clientes hoje.</p>
       <% if (erro) { %><div class="alert err" style="margin-top:16px"><%= erro %></div><% } %>
-      <form method="post" action="/register" style="margin-top:8px">
+      <form method="post" action="/register" style="margin-top:14px">
         <label>Nome / Loja</label>
         <input type="text" name="name" value="<%= dados.name || '' %>" required autofocus>
         <label>E-mail</label>
         <input type="email" name="email" value="<%= dados.email || '' %>" required>
         <label>Senha (mín. 6 caracteres)</label>
         <input type="password" name="password" required>
-        <button type="submit" style="width:100%; margin-top:20px">Criar conta</button>
+        <button type="submit" style="width:100%; margin-top:22px">Criar conta →</button>
       </form>
       <p class="muted-link">Já tem conta? <a href="/login">Entrar</a></p>
     </div>

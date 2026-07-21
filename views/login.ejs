@@ -1,21 +1,20 @@
 <%- include('partials/head', { title: 'Entrar - Rastreio' }) %>
-<div class="center-wrap">
-  <div class="center-card">
-    <div class="card">
-      <div class="auth-brand">
-        <span class="logo-mark">📦</span>
-        <h1>Rastreio</h1>
-      </div>
-      <p class="sub">Entre na sua conta</p>
+<div class="auth-split">
+  <%- include('partials/auth_hero') %>
+  <div class="auth-form-side">
+    <div class="form-inner">
+      <div class="mobile-brand"><span class="logo-mark">📦</span> Rastreio</div>
+      <h2>Entrar na sua conta</h2>
+      <p class="sub">Use seu e-mail e senha para acessar o painel.</p>
       <% if (erro) { %><div class="alert err" style="margin-top:16px"><%= erro %></div><% } %>
-      <form method="post" action="/login" style="margin-top:8px">
+      <form method="post" action="/login" style="margin-top:14px">
         <label>E-mail</label>
         <input type="email" name="email" value="<%= dados.email || '' %>" required autofocus>
         <label>Senha</label>
         <input type="password" name="password" required>
-        <button type="submit" style="width:100%; margin-top:20px">Entrar</button>
+        <button type="submit" style="width:100%; margin-top:22px">Continuar →</button>
       </form>
-      <p class="muted-link">Não tem conta? <a href="/register">Criar conta</a></p>
+      <p class="muted-link">Não tem conta? <a href="/register">Cadastre-se</a></p>
     </div>
   </div>
 </div>

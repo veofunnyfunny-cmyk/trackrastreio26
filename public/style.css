@@ -174,6 +174,52 @@ a.badge:hover { text-decoration: none; filter: brightness(.97); }
 .muted-link { text-align: center; margin-top: 18px; color: var(--text-muted); font-size: 14px; }
 
 /* ============================================================
+   Login / Cadastro — tela dividida (hero + formulário)
+   ============================================================ */
+.auth-split { display: flex; min-height: 100vh; }
+
+.auth-hero {
+  flex: 1; position: relative; overflow: hidden; color: #fff;
+  padding: 56px 56px; display: flex; flex-direction: column; justify-content: center;
+  background: linear-gradient(140deg, #172554 0%, #1e40af 45%, #2563eb 100%);
+}
+.auth-hero::after {
+  content: ''; position: absolute; width: 520px; height: 520px; right: -140px; bottom: -160px;
+  background: radial-gradient(circle, rgba(96,165,250,.45), transparent 62%); pointer-events: none;
+}
+.auth-hero::before {
+  content: ''; position: absolute; width: 360px; height: 360px; left: -120px; top: -120px;
+  background: radial-gradient(circle, rgba(59,130,246,.35), transparent 60%); pointer-events: none;
+}
+.hero-brand {
+  position: absolute; top: 40px; left: 56px; display: flex; align-items: center; gap: 11px;
+  font-size: 22px; font-weight: 800; letter-spacing: -.02em; z-index: 2;
+}
+.hero-brand .logo-mark { width: 38px; height: 38px; font-size: 20px; border-radius: 10px; background: rgba(255,255,255,.16); }
+.hero-brand img { height: 40px; width: auto; display: block; }
+.hero-content { position: relative; z-index: 2; max-width: 500px; }
+.hero-content h1 { font-size: 42px; line-height: 1.12; letter-spacing: -.025em; margin: 0 0 18px; color: #fff; }
+.hero-content h1 .accent { color: #93c5fd; }
+.hero-sub { font-size: 16px; color: rgba(255,255,255,.82); margin: 0 0 40px; max-width: 440px; }
+.hero-features { display: flex; flex-direction: column; gap: 22px; }
+.hero-feature { display: flex; gap: 14px; align-items: flex-start; }
+.hf-icon { width: 46px; height: 46px; flex-shrink: 0; border-radius: 13px; background: rgba(255,255,255,.14);
+  display: flex; align-items: center; justify-content: center; font-size: 21px; }
+.hf-title { font-weight: 700; font-size: 15.5px; }
+.hf-desc { font-size: 13.5px; color: rgba(255,255,255,.72); margin-top: 1px; }
+
+.auth-form-side { width: 500px; max-width: 100%; display: flex; align-items: center; justify-content: center; padding: 40px 28px; background: var(--surface); }
+.form-inner { width: 100%; max-width: 360px; }
+.form-inner .mobile-brand { display: none; }
+.form-inner h2 { font-size: 24px; letter-spacing: -.02em; margin: 0 0 4px; }
+
+@media (max-width: 900px) {
+  .auth-hero { display: none; }
+  .auth-form-side { width: 100%; background: var(--bg); }
+  .form-inner .mobile-brand { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 22px; font-weight: 800; margin-bottom: 24px; }
+}
+
+/* ============================================================
    Página pública de rastreio
    ============================================================ */
 .track-page { max-width: 620px; margin: 0 auto; padding: 40px 20px 60px; }
