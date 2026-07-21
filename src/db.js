@@ -29,7 +29,12 @@ CREATE TABLE IF NOT EXISTS users (
   webhook_token     TEXT    NOT NULL UNIQUE,
 
   -- Templates de mensagem (com variáveis {nome} {codigo} {status} {link} {loja})
-  msg_wpp           TEXT    NOT NULL DEFAULT 'Olá {nome}! Seu pedido foi confirmado. 🚚\nAcompanhe o rastreio pelo código {codigo}: {link}',
+  msg_wpp           TEXT    NOT NULL DEFAULT 'Olá {nome}! Seu pedido foi confirmado. 🚚
+
+Código de rastreio: {codigo}
+
+Acompanhe seu pedido por aqui:
+{link}',
   email_subject     TEXT    NOT NULL DEFAULT 'Seu código de rastreio: {codigo}',
   msg_email         TEXT    NOT NULL DEFAULT 'Olá {nome},\n\nRecebemos seu pedido e ele já está sendo preparado.\n\nCódigo de rastreio: {codigo}\nAcompanhe aqui: {link}\n\nStatus atual: {status}\n\nObrigado pela compra!',
   store_name        TEXT    NOT NULL DEFAULT 'Minha Loja',
