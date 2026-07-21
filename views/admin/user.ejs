@@ -1,0 +1,73 @@
+<%- include('../partials/head', { title: 'Admin - Conta #' + conta.id }) %>
+<%- include('../partials/shell', { active: 'admin' }) %>
+
+<div class="topbar">
+  <div>
+    <h1>Conta #<%= conta.id %></h1>
+    <p class="sub"><%= conta.store_name || conta.name %> • <%= conta.email %></p>
+  </div>
+  <a href="/admin" class="btn btn-ghost">← Voltar à lista</a>
+</div>
+
+<% if (salvo) { %><div class="alert ok">Saldo creditado!</div><% } %>
+
+<div class="grid cols-3">
+  <div class="card stat"><div class="num" style="color:var(--success)"><%= stats.saldo %></div><div class="lbl">Saldo</div></div>
+  <div class="card stat"><div class="num"><%= stats.rastreios %></div><div class="lbl">Rastreios</div></div>
+  <div class="card stat"><div class="num"><%= stats.msgs %></div><div class="lbl">Mensagens</div></div>
+</div>
+
+<div class="grid cols-2">
+  <div class="card">
+    <h2 style="margin-top:0">💰 Adicionar saldo</h2>
+    <form method="post" action="/admin/user/<%= conta.id %>/creditar" style="display:flex; gap:10px; align-items:flex-end">
+      <div style="flex:1"><label>Valor (R$)</label><input type="number" name="valor" value="50" min="1" step="1"></div>
+      <button>Creditar</button>
+    </form>
+    <p class="hint">Crédito manual, sem cobrança — cai direto no saldo da conta.</p>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">🔑 Acessar a conta</h2>
+    <p class="sub" style="font-size:14px">Entrar como este usuário para ver o painel dele exatamente como ele vê.</p>
+    <form method="post" action="/admin/impersonate/<%= conta.id %>" style="margin-top:10px">
+      <button class="btn-ghost">Entrar como <%= conta.store_name || conta.name %></button>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">Dados da conta</h2>
+  <table>
+    <tr><td class="sub" style="width:180px">ID</td><td>#<%= conta.id %></td></tr>
+    <tr><td class="sub">Nome / Loja</td><td><%= conta.store_name || conta.name %></td></tr>
+    <tr><td class="sub">E-mail</td><td><%= conta.email %></td></tr>
+    <tr><td class="sub">WhatsApp conectado?</td><td><%= conta.wa_provider === 'evolution' && conta.wa_instance ? 'Sim (' + conta.wa_instance + ')' : 'Não' %></td></tr>
+    <tr><td class="sub">Canais ativos</td><td><%= [conta.notify_whatsapp ? 'WhatsApp' : null, conta.notify_email ? 'E-mail' : null].filter(Boolean).join(' + ') || 'Nenhum' %></td></tr>
+    <tr><td class="sub">Criada em</td><td><%= conta.created_at %></td></tr>
+  </table>
+</div>
+
+<h2>Últimas transações</h2>
+<div class="card">
+  <% if (transacoes.length === 0) { %>
+    <p class="sub">Nenhuma transação.</p>
+  <% } else { %>
+    <table>
+      <thead><tr><th>Quando</th><th>Descrição</th><th style="text-align:right">Valor</th></tr></thead>
+      <tbody>
+        <% transacoes.forEach(t => { %>
+          <tr>
+            <td class="sub" style="font-size:12px"><%= t.created_at %></td>
+            <td><%= t.description %></td>
+            <td style="text-align:right" class="<%= t.kind==='credito' ? 'money-in' : 'money-out' %>">
+              <%= t.kind==='credito' ? '+' : '−' %> <%= billing.formatBRL(t.amount_cents) %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<%- include('../partials/shell_end') %>

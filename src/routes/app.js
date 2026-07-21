@@ -3,7 +3,7 @@
 const express = require('express');
 const crypto = require('crypto');
 const db = require('../db');
-const { requireLogin, baseUrl } = require('../middleware');
+const { requireLogin, baseUrl, isAdmin, requireAdmin } = require('../middleware');
 const { notificarCliente } = require('../services/notify');
 const { gerarCodigo } = require('../services/tracking');
 const evolution = require('../services/evolution');
@@ -23,6 +23,8 @@ router.use((req, res, next) => {
   res.locals.saldo = billing.saldo(req.user.id);
   res.locals.saldoBRL = billing.formatBRL(res.locals.saldo);
   res.locals.billing = billing;
+  res.locals.isAdmin = isAdmin(req.user);
+  res.locals.impersonating = Boolean(req.session.adminId);
   next();
 });
 
@@ -290,6 +292,75 @@ router.get('/saldo/pix/:txid/status', async (req, res) => {
   if (!charge) return res.json({ status: 'nao_encontrado' });
   const r = await recharge.conferirEcreditar(req.params.txid);
   res.json({ status: r.status, saldoBRL: billing.formatBRL(billing.saldo(req.user.id)) });
+});
+
+// ==========================================================================
+// PAINEL ADMIN (só para e-mails em ADMIN_EMAILS)
+// ==========================================================================
+
+// Lista todas as contas, com busca por ID/nome/e-mail.
+router.get('/admin', requireAdmin, (req, res) => {
+  const q = (req.query.q || '').trim();
+  let contas;
+  if (q) {
+    const like = `%${q}%`;
+    contas = db.prepare(`
+      SELECT * FROM users
+      WHERE CAST(id AS TEXT) = ? OR email LIKE ? OR name LIKE ?
+      ORDER BY id DESC LIMIT 200
+    `).all(q, like, like);
+  } else {
+    contas = db.prepare('SELECT * FROM users ORDER BY id DESC LIMIT 200').all();
+  }
+  contas.forEach((c) => {
+    c.n_rastreios = db.prepare('SELECT COUNT(*) c FROM trackings WHERE user_id = ?').get(c.id).c;
+  });
+  const totalContas = db.prepare('SELECT COUNT(*) c FROM users').get().c;
+  res.render('admin/list', { contas, q, totalContas });
+});
+
+// Detalhe de uma conta (com ações de admin).
+router.get('/admin/user/:id', requireAdmin, (req, res) => {
+  const conta = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
+  if (!conta) return res.redirect('/admin');
+  const stats = {
+    rastreios: db.prepare('SELECT COUNT(*) c FROM trackings WHERE user_id = ?').get(conta.id).c,
+    msgs: db.prepare('SELECT COUNT(*) c FROM message_logs WHERE user_id = ?').get(conta.id).c,
+    saldo: billing.formatBRL(billing.saldo(conta.id)),
+  };
+  const transacoes = db.prepare(
+    'SELECT * FROM transactions WHERE user_id = ? ORDER BY id DESC LIMIT 20'
+  ).all(conta.id);
+  res.render('admin/user', { conta, stats, transacoes, salvo: req.query.salvo });
+});
+
+// Credita saldo numa conta.
+router.post('/admin/user/:id/creditar', requireAdmin, (req, res) => {
+  const conta = db.prepare('SELECT id FROM users WHERE id = ?').get(req.params.id);
+  if (!conta) return res.redirect('/admin');
+  const valor = Number(String(req.body.valor).replace(',', '.'));
+  if (valor && valor > 0) {
+    billing.creditar(conta.id, Math.round(valor * 100), 'Crédito manual (admin)');
+  }
+  res.redirect('/admin/user/' + conta.id + '?salvo=1');
+});
+
+// Entrar como o usuário (impersonar) — guarda o id do admin para voltar.
+router.post('/admin/impersonate/:id', requireAdmin, (req, res) => {
+  const alvo = db.prepare('SELECT id FROM users WHERE id = ?').get(req.params.id);
+  if (!alvo) return res.redirect('/admin');
+  req.session.adminId = req.user.id;
+  req.session.userId = alvo.id;
+  res.redirect('/');
+});
+
+// Voltar para a conta admin (sai da impersonação).
+router.post('/admin/voltar', (req, res) => {
+  if (req.session.adminId) {
+    req.session.userId = req.session.adminId;
+    delete req.session.adminId;
+  }
+  res.redirect('/admin');
 });
 
 module.exports = router;

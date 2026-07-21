@@ -1,0 +1,38 @@
+<%- include('../partials/head', { title: 'Admin - Contas' }) %>
+<%- include('../partials/shell', { active: 'admin' }) %>
+
+<div class="topbar">
+  <div><h1>Admin — Contas</h1><p class="sub"><%= totalContas %> conta(s) no sistema.</p></div>
+</div>
+
+<div class="card">
+  <form method="get" action="/admin" style="display:flex; gap:10px">
+    <input type="text" name="q" value="<%= q %>" placeholder="Buscar por ID, e-mail ou nome..." autofocus>
+    <button>Buscar</button>
+    <% if (q) { %><a class="btn btn-ghost" href="/admin">Limpar</a><% } %>
+  </form>
+</div>
+
+<div class="card">
+  <% if (contas.length === 0) { %>
+    <p class="sub">Nenhuma conta encontrada<%= q ? ' para "'+q+'"' : '' %>.</p>
+  <% } else { %>
+    <table>
+      <thead><tr><th>ID</th><th>Loja / Nome</th><th>E-mail</th><th>Saldo</th><th>Rastreios</th><th></th></tr></thead>
+      <tbody>
+        <% contas.forEach(c => { %>
+          <tr>
+            <td><b>#<%= c.id %></b></td>
+            <td><%= c.store_name || c.name %><div class="sub" style="font-size:12px"><%= c.created_at %></div></td>
+            <td class="sub" style="font-size:13px"><%= c.email %></td>
+            <td class="money-in"><%= billing.formatBRL(c.balance_cents) %></td>
+            <td><%= c.n_rastreios %></td>
+            <td><a class="btn btn-sm" href="/admin/user/<%= c.id %>">Abrir</a></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<%- include('../partials/shell_end') %>

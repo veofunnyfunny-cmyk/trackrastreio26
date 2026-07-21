@@ -15,6 +15,19 @@ function requireLogin(req, res, next) {
   next();
 }
 
+// Admin: definido pela variável ADMIN_EMAILS (e-mails separados por vírgula).
+function isAdmin(user) {
+  const lista = (process.env.ADMIN_EMAILS || '')
+    .toLowerCase().split(',').map((s) => s.trim()).filter(Boolean);
+  return Boolean(user && lista.includes(String(user.email || '').toLowerCase()));
+}
+
+// Exige que o usuário logado seja admin (senão 404, para não revelar a rota).
+function requireAdmin(req, res, next) {
+  if (!isAdmin(req.user)) return res.status(404).send('Página não encontrada');
+  next();
+}
+
 // URL base do sistema (para montar o link de rastreio). Respeita proxy.
 function baseUrl(req) {
   if (process.env.BASE_URL) return process.env.BASE_URL.replace(/\/$/, '');
@@ -22,4 +35,4 @@ function baseUrl(req) {
   return `${proto}://${req.get('host')}`;
 }
 
-module.exports = { requireLogin, baseUrl };
+module.exports = { requireLogin, baseUrl, isAdmin, requireAdmin };

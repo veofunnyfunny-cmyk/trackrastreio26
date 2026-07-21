@@ -18,6 +18,9 @@
       <a href="/config"    class="<%= active==='config'    ? 'active' : '' %>">Configurações</a>
       <a href="/rastreios" class="<%= active==='rastreios' ? 'active' : '' %>">Rastreios</a>
       <a href="/logs"      class="<%= active==='logs'      ? 'active' : '' %>">Logs de envio</a>
+      <% if (typeof isAdmin !== 'undefined' && isAdmin) { %>
+        <a href="/admin" class="<%= active==='admin' ? 'active' : '' %>" style="color:var(--brand); font-weight:600">⚙️ Admin</a>
+      <% } %>
     </nav>
     <div class="spacer"></div>
     <form method="post" action="/logout">
@@ -25,3 +28,9 @@
     </form>
   </aside>
   <main class="main">
+    <% if (typeof impersonating !== 'undefined' && impersonating) { %>
+      <div class="alert warn" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap">
+        <span>👁️ Você está vendo como <b><%= user.email %></b> (modo admin).</span>
+        <form method="post" action="/admin/voltar" style="margin:0"><button class="btn-sm">← Voltar ao admin</button></form>
+      </div>
+    <% } %>
