@@ -181,15 +181,14 @@ a.badge:hover { text-decoration: none; filter: brightness(.97); }
 .auth-hero {
   flex: 1; position: relative; overflow: hidden; color: #fff;
   padding: 56px 56px; display: flex; flex-direction: column; justify-content: center;
-  background: linear-gradient(140deg, #172554 0%, #1e40af 45%, #2563eb 100%);
-}
-.auth-hero::after {
-  content: ''; position: absolute; width: 520px; height: 520px; right: -140px; bottom: -160px;
-  background: radial-gradient(circle, rgba(96,165,250,.45), transparent 62%); pointer-events: none;
-}
-.auth-hero::before {
-  content: ''; position: absolute; width: 360px; height: 360px; left: -120px; top: -120px;
-  background: radial-gradient(circle, rgba(59,130,246,.35), transparent 60%); pointer-events: none;
+  /* Imagem de fundo (coloque /public/hero.jpg). O gradiente por cima garante
+     que o texto branco fique legível sobre qualquer imagem. */
+  background-color: #172554;
+  background-image:
+    linear-gradient(140deg, rgba(23,37,84,.82) 0%, rgba(30,64,175,.60) 50%, rgba(37,99,235,.52) 100%),
+    url('/static/hero.jpg');
+  background-size: cover;
+  background-position: center;
 }
 .hero-brand {
   position: absolute; top: 40px; left: 56px; display: flex; align-items: center; gap: 11px;
@@ -200,6 +199,13 @@ a.badge:hover { text-decoration: none; filter: brightness(.97); }
 .hero-content { position: relative; z-index: 2; max-width: 500px; }
 .hero-content h1 { font-size: 42px; line-height: 1.12; letter-spacing: -.025em; margin: 0 0 18px; color: #fff; }
 .hero-content h1 .accent { color: #93c5fd; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 9px; margin: 0 0 22px;
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22);
+  padding: 11px 16px; border-radius: 12px; font-size: 14.5px; font-weight: 600;
+  max-width: 460px; backdrop-filter: blur(2px);
+}
+.hero-badge .x { font-size: 18px; }
 .hero-sub { font-size: 16px; color: rgba(255,255,255,.82); margin: 0 0 40px; max-width: 440px; }
 .hero-features { display: flex; flex-direction: column; gap: 22px; }
 .hero-feature { display: flex; gap: 14px; align-items: flex-start; }
