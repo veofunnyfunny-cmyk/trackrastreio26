@@ -110,14 +110,19 @@ router.post('/config', (req, res) => {
   // Obs.: os campos de WhatsApp (wa_*) NÃO são tocados aqui — a conexão é
   // gerenciada pela aba "Conectar WhatsApp" (QR do Evolution). Salvar as
   // configurações não pode derrubar o WhatsApp conectado.
+  // Canais de envio (checkboxes: presente = ligado).
+  const notify_whatsapp = req.body.notify_whatsapp ? 1 : 0;
+  const notify_email = req.body.notify_email ? 1 : 0;
+
   db.prepare(`
     UPDATE users SET
       store_name=@store_name,
+      notify_whatsapp=@notify_whatsapp, notify_email=@notify_email,
       smtp_host=@smtp_host, smtp_port=@smtp_port, smtp_user=@smtp_user, smtp_pass=@smtp_pass, smtp_from=@smtp_from
     WHERE id=@id
   `).run({
     id: req.user.id,
-    store_name,
+    store_name, notify_whatsapp, notify_email,
     smtp_host, smtp_port, smtp_user, smtp_pass, smtp_from,
   });
   res.redirect('/config?salvo=1');

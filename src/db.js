@@ -104,6 +104,13 @@ if (!userCols.includes('balance_cents')) {
   // Saldo do cliente em CENTAVOS (inteiro, para não ter erro de arredondamento).
   db.exec('ALTER TABLE users ADD COLUMN balance_cents INTEGER NOT NULL DEFAULT 0');
 }
+// Canais de envio ativos (1 = envia, 0 = não envia). Padrão: ambos ligados.
+if (!userCols.includes('notify_whatsapp')) {
+  db.exec('ALTER TABLE users ADD COLUMN notify_whatsapp INTEGER NOT NULL DEFAULT 1');
+}
+if (!userCols.includes('notify_email')) {
+  db.exec('ALTER TABLE users ADD COLUMN notify_email INTEGER NOT NULL DEFAULT 1');
+}
 
 // Endereço de destino do comprador (usado na jornada de rastreio).
 const trackCols = db.prepare('PRAGMA table_info(trackings)').all().map((c) => c.name);

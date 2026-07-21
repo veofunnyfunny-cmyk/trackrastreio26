@@ -51,12 +51,20 @@ async function enviarComCobranca(user, tracking, canal, destino, texto, enviar) 
   return { canal, ...r };
 }
 
-// Dispara as notificações. `canais` limita quais enviar (padrão: ambos).
-async function notificarCliente(user, tracking, baseUrl, canais = ['whatsapp', 'email']) {
+// Dispara as notificações. Respeita os canais que o cliente ativou
+// (notify_whatsapp / notify_email). `canais` pode restringir ainda mais.
+async function notificarCliente(user, tracking, baseUrl, canais = null) {
   const vars = montarVars(user, tracking, baseUrl);
   const resultados = [];
 
-  if (canais.includes('whatsapp')) {
+  // Canais que o usuário deixou ligados nas configurações.
+  const ativos = [];
+  if (user.notify_whatsapp) ativos.push('whatsapp');
+  if (user.notify_email) ativos.push('email');
+  // Se veio uma restrição explícita, cruza com os ativos.
+  const enviar = canais ? ativos.filter((c) => canais.includes(c)) : ativos;
+
+  if (enviar.includes('whatsapp')) {
     const texto = renderTemplate(user.msg_wpp, vars);
     resultados.push(await enviarComCobranca(
       user, tracking, 'whatsapp', tracking.customer_phone, texto,
@@ -64,7 +72,7 @@ async function notificarCliente(user, tracking, baseUrl, canais = ['whatsapp', '
     ));
   }
 
-  if (canais.includes('email')) {
+  if (enviar.includes('email')) {
     const assunto = renderTemplate(user.email_subject, vars);
     const texto = renderTemplate(user.msg_email, vars);
     resultados.push(await enviarComCobranca(

@@ -14,6 +14,20 @@
     <p class="hint">Esse nome aparece no topo da página de rastreio que o seu cliente vê, e na variável <code>{loja}</code> das mensagens.</p>
   </div>
 
+  <!-- ================= CANAIS DE ENVIO ================= -->
+  <div class="card">
+    <h2 style="margin-top:0">📨 Canais de envio</h2>
+    <p class="hint" style="margin-top:0">Escolha por onde as mensagens de rastreio são enviadas. Você só é cobrado pelos canais que estiverem ligados e enviarem.</p>
+    <label style="display:flex; align-items:center; gap:10px; margin:14px 0 0; cursor:pointer">
+      <input type="checkbox" name="notify_whatsapp" value="1" style="width:auto" <%= user.notify_whatsapp ? 'checked' : '' %>>
+      <span>💬 <b>WhatsApp</b> — <%= billing.formatBRL(billing.PRECOS.whatsapp) %> por mensagem</span>
+    </label>
+    <label style="display:flex; align-items:center; gap:10px; margin:12px 0 0; cursor:pointer">
+      <input type="checkbox" name="notify_email" value="1" style="width:auto" <%= user.notify_email ? 'checked' : '' %>>
+      <span>✉️ <b>E-mail</b> — <%= billing.formatBRL(billing.PRECOS.email) %> por mensagem</span>
+    </label>
+  </div>
+
   <div class="card" style="display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap">
     <div>
       <h2 style="margin:0">💬 WhatsApp</h2>
