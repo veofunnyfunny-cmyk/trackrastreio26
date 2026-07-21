@@ -214,14 +214,30 @@ a.badge:hover { text-decoration: none; filter: brightness(.97); }
 
 @media (max-width: 900px) {
   .auth-hero { display: none; }
-  /* Celular: primeiro o formulário, depois a arte embaixo. */
+  /* Celular: primeiro o formulário, depois a arte embaixo. Tema AZUL ESCURO
+     (só no celular) pra combinar com a arte logo abaixo. */
   .auth-split { flex-direction: column; min-height: 100vh; }
   .auth-form-side {
-    width: 100%; background: var(--surface);
-    display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; padding: 0;
+    width: 100%; padding: 24px 18px 26px;
+    background: linear-gradient(180deg, #0a1640 0%, #0c1a4d 100%);
+    display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start;
   }
-  .form-inner { max-width: 440px; margin: 0 auto; padding: 34px 24px 26px; }
-  .mobile-hero { display: block; width: 100%; height: auto; }
+  .form-inner {
+    max-width: 440px; margin: 0 auto; padding: 26px 22px; color: #fff;
+    background: linear-gradient(160deg, #122160 0%, #0c1638 100%);
+    border: 1px solid rgba(255,255,255,.12); border-radius: 18px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.4);
+  }
+  .form-inner h2 { color: #fff; }
+  .form-inner .sub { color: rgba(255,255,255,.68); }
+  .form-inner label { color: rgba(255,255,255,.9); }
+  .form-inner input {
+    background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18); color: #fff;
+  }
+  .form-inner input::placeholder { color: rgba(255,255,255,.4); }
+  .form-inner input:focus { border-color: var(--brand-light); box-shadow: 0 0 0 3px rgba(59,130,246,.28); }
+  .form-inner .muted-link { color: rgba(255,255,255,.7); }
+  .mobile-hero { display: block; width: 100%; height: auto; margin-top: 4px; }
 }
 
 /* ============================================================
