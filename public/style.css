@@ -214,12 +214,14 @@ a.badge:hover { text-decoration: none; filter: brightness(.97); }
 
 @media (max-width: 900px) {
   .auth-hero { display: none; }
+  /* Celular: primeiro o formulário, depois a arte embaixo. */
+  .auth-split { flex-direction: column; min-height: 100vh; }
   .auth-form-side {
     width: 100%; background: var(--surface);
-    flex-direction: column; align-items: stretch; justify-content: flex-start; padding: 0;
+    display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; padding: 0;
   }
+  .form-inner { max-width: 440px; margin: 0 auto; padding: 34px 24px 26px; }
   .mobile-hero { display: block; width: 100%; height: auto; }
-  .form-inner { max-width: 400px; margin: 0 auto; padding: 30px 24px 40px; }
 }
 
 /* ============================================================
