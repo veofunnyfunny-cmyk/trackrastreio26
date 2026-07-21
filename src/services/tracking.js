@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const db = require('../db');
 
 const ALFABETO = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sem 0/O/1/I pra evitar confusão
+const PREFIXO = 'BR'; // prefixo do código de rastreio (ex.: BR-XXXXXX-XXXX)
 
 function randomBloco(tamanho) {
   let out = '';
@@ -15,15 +16,15 @@ function randomBloco(tamanho) {
   return out;
 }
 
-// Gera algo no formato RS-XXXXXX-XXXX e garante que não existe no banco.
+// Gera algo no formato BR-XXXXXX-XXXX e garante que não existe no banco.
 function gerarCodigo() {
   for (let tentativa = 0; tentativa < 10; tentativa++) {
-    const code = `RS-${randomBloco(6)}-${randomBloco(4)}`;
+    const code = `${PREFIXO}-${randomBloco(6)}-${randomBloco(4)}`;
     const existe = db.prepare('SELECT 1 FROM trackings WHERE code = ?').get(code);
     if (!existe) return code;
   }
   // fallback praticamente impossível de colidir
-  return `RS-${randomBloco(10)}`;
+  return `${PREFIXO}-${randomBloco(10)}`;
 }
 
 module.exports = { gerarCodigo };
