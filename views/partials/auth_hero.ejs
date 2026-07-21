@@ -1,4 +1,24 @@
-<%# Painel de marca da esquerda (login/cadastro).
-    Toda a arte (marca + frase + destaques) está na imagem public/hero.png.
-    Para trocar a arte, substitua esse arquivo. %>
-<div class="auth-hero" role="img" aria-label="Track Rastreio — você cuida das vendas, a gente cuida da entrega"></div>
+<%# Painel de marca da esquerda (login/cadastro) — texto em HTML, que se
+    adapta a qualquer tamanho de tela (nunca corta). %>
+<div class="auth-hero">
+  <div class="hero-brand"><span class="logo-mark">📦</span> Track Rastreio</div>
+  <div class="hero-content">
+    <h1>Você cuida das vendas.<br><span class="accent">A gente cuida da entrega.</span></h1>
+    <div class="hero-badge"><span class="x">🚫</span> Chega de MED e reembolso por falta de rastreio.</div>
+    <p class="hero-sub">Quando o WhatsApp trava, o cliente não recebe o código e abre mediação. Aqui o rastreio é enviado automaticamente — o lead nunca fica perdido.</p>
+    <div class="hero-features">
+      <div class="hero-feature">
+        <div class="hf-icon">🚚</div>
+        <div><div class="hf-title">Rastreio automático</div><div class="hf-desc">A jornada do pedido avança sozinha até a entrega.</div></div>
+      </div>
+      <div class="hero-feature">
+        <div class="hf-icon">💬</div>
+        <div><div class="hf-title">WhatsApp & E-mail</div><div class="hf-desc">Seu cliente é avisado no canal que você escolher.</div></div>
+      </div>
+      <div class="hero-feature">
+        <div class="hf-icon">⚡</div>
+        <div><div class="hf-title">Simples e rápido</div><div class="hf-desc">Cole o webhook no seu gateway e está pronto.</div></div>
+      </div>
+    </div>
+  </div>
+</div>

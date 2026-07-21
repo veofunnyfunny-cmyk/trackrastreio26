@@ -179,9 +179,18 @@ a.badge:hover { text-decoration: none; filter: brightness(.97); }
 .auth-split { display: flex; min-height: 100vh; }
 
 .auth-hero {
-  flex: 1; overflow: hidden;
-  /* Arte paisagem (marca + textos + destaques) preenchendo o painel inteiro. */
-  background: #0a1640 url('/static/hero2.png') center center / cover no-repeat;
+  flex: 1; position: relative; overflow: hidden; color: #fff;
+  padding: 56px 56px; display: flex; flex-direction: column; justify-content: center;
+  /* Fundo em degradê + brilhos (texto por cima é HTML, se adapta a tudo). */
+  background: linear-gradient(140deg, #0b1640 0%, #1e40af 48%, #2563eb 100%);
+}
+.auth-hero::after {
+  content: ''; position: absolute; width: 520px; height: 520px; right: -150px; bottom: -170px;
+  background: radial-gradient(circle, rgba(96,165,250,.4), transparent 62%); pointer-events: none;
+}
+.auth-hero::before {
+  content: ''; position: absolute; width: 380px; height: 380px; left: -130px; top: -120px;
+  background: radial-gradient(circle, rgba(59,130,246,.3), transparent 60%); pointer-events: none;
 }
 .hero-brand {
   position: absolute; top: 40px; left: 56px; display: flex; align-items: center; gap: 11px;
