@@ -181,7 +181,7 @@ a.badge:hover { text-decoration: none; filter: brightness(.97); }
 .auth-hero {
   flex: 1; overflow: hidden;
   /* Arte paisagem (marca + textos + destaques) preenchendo o painel inteiro. */
-  background: #0a1640 url('/static/hero.png') center center / cover no-repeat;
+  background: #0a1640 url('/static/hero2.png') center center / cover no-repeat;
 }
 .hero-brand {
   position: absolute; top: 40px; left: 56px; display: flex; align-items: center; gap: 11px;
