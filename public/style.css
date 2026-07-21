@@ -237,7 +237,13 @@ a.badge:hover { text-decoration: none; filter: brightness(.97); }
   .form-inner input::placeholder { color: rgba(255,255,255,.4); }
   .form-inner input:focus { border-color: var(--brand-light); box-shadow: 0 0 0 3px rgba(59,130,246,.28); }
   .form-inner .muted-link { color: rgba(255,255,255,.7); }
-  .mobile-hero { display: block; width: 100%; height: auto; margin-top: 4px; }
+  /* Imagem ocupa a largura TOTAL (estoura o padding lateral do form-side)
+     e vai até a borda de baixo. */
+  .mobile-hero {
+    display: block; height: auto;
+    width: calc(100% + 36px);
+    margin: 8px -18px -26px;
+  }
 }
 
 /* ============================================================
