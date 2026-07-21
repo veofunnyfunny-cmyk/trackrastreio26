@@ -1,0 +1,70 @@
+<%- include('partials/head', { title: 'Pagamento Pix - Rastreio' }) %>
+<%- include('partials/shell', { active: 'saldo' }) %>
+
+<div class="topbar"><div><h1>Pague com Pix</h1><p class="sub">Escaneie o QR code ou copie o código para pagar.</p></div></div>
+
+<div class="center-card" style="max-width:460px; margin:0">
+  <div class="card" style="text-align:center">
+    <div id="pending-area">
+      <div class="sub">Valor da recarga</div>
+      <div style="font-size:30px; font-weight:700; letter-spacing:-.02em; margin:2px 0 18px">
+        <%= billing.formatBRL(charge.amount_cents) %>
+      </div>
+
+      <div style="background:#fff; display:inline-block; padding:10px; border:1px solid var(--border); border-radius:14px">
+        <img src="<%= qrDataUrl %>" alt="QR Code Pix" style="width:240px; height:240px; display:block">
+      </div>
+
+      <div style="margin-top:18px; text-align:left">
+        <label>Pix copia e cola</label>
+        <div class="codebox">
+          <span id="pixcode" style="font-size:12px"><%= charge.pix_code %></span>
+        </div>
+        <button type="button" class="btn-ghost btn-sm" style="width:100%; margin-top:8px" onclick="copiar(this)">Copiar código</button>
+      </div>
+
+      <div id="status-msg" class="alert warn" style="margin-top:18px">
+        ⏳ Aguardando pagamento... (a página confirma sozinha)
+      </div>
+    </div>
+
+    <div id="paid-area" style="display:none">
+      <div style="font-size:48px">✅</div>
+      <h2 style="margin-top:6px">Pagamento confirmado!</h2>
+      <p class="sub">Seu saldo foi atualizado.</p>
+      <div id="novo-saldo" style="font-size:26px; font-weight:700; color:var(--success); margin:10px 0"></div>
+      <a href="/saldo" class="btn" style="margin-top:6px">Voltar ao saldo</a>
+    </div>
+  </div>
+
+  <p class="muted-link"><a href="/saldo">Cancelar</a></p>
+</div>
+
+<script>
+  const txid = <%- JSON.stringify(charge.txid) %>;
+
+  function copiar(btn) {
+    navigator.clipboard.writeText(document.getElementById('pixcode').innerText).then(() => {
+      const t = btn.innerText; btn.innerText = 'Copiado!'; setTimeout(() => btn.innerText = t, 1500);
+    });
+  }
+
+  async function checar() {
+    try {
+      const r = await fetch('/saldo/pix/' + encodeURIComponent(txid) + '/status');
+      const d = await r.json();
+      if (d.status === 'approved') {
+        clearInterval(timer);
+        document.getElementById('pending-area').style.display = 'none';
+        document.getElementById('novo-saldo').textContent = d.saldoBRL || '';
+        document.getElementById('paid-area').style.display = 'block';
+      }
+    } catch (e) { /* tenta de novo no próximo ciclo */ }
+  }
+
+  // Consulta a cada 5s (recomendação do gateway).
+  const timer = setInterval(checar, 5000);
+  setTimeout(checar, 2000);
+</script>
+
+<%- include('partials/shell_end') %>

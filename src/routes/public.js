@@ -2,8 +2,20 @@
 const express = require('express');
 const db = require('../db');
 const stages = require('../services/stages');
+const recharge = require('../services/recharge');
 
 const router = express.Router();
+
+// Webhook do gateway Pix (Roundfy) avisando pagamento. É best-effort e pode
+// ser forjado, então NÃO confiamos no corpo: apenas usamos o txid para
+// reconsultar a Roundfy e creditar (a verificação real está no recharge).
+router.post('/pix/webhook', async (req, res) => {
+  const txid = req.body && (req.body.txid || req.body.id);
+  if (txid) {
+    recharge.conferirEcreditar(String(txid)).catch((e) => console.error('pix webhook:', e.message));
+  }
+  res.json({ ok: true });
+});
 
 // Busca (form) e consulta direta por código.
 router.get('/rastreio', (req, res) => {

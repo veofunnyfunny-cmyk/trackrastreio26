@@ -10,6 +10,11 @@ const { testarConexao } = require('../services/whatsapp');
 const evolution = require('../services/evolution');
 const billing = require('../services/billing');
 const stages = require('../services/stages');
+const pix = require('../services/pix');
+const recharge = require('../services/recharge');
+const QRCode = require('qrcode');
+const smtpProviders = require('../services/smtpProviders');
+const mailer = require('../services/mailer');
 
 const router = express.Router();
 router.use(requireLogin);
@@ -87,10 +92,22 @@ router.post('/mensagens', (req, res) => {
 
 // ---- Configurações de envio (modo, WhatsApp, SMTP) ------------------------
 router.get('/config', (req, res) => {
-  res.render('config', { salvo: req.query.salvo });
+  res.render('config', { salvo: req.query.salvo, emailCentral: mailer.emailCentralAtivo() });
 });
 
 router.post('/config', (req, res) => {
+  const store_name = (req.body.store_name || '').trim() || 'Minha Loja';
+
+  // E-mail simplificado: cliente informa só e-mail + senha; derivamos o resto.
+  const smtpEmail = (req.body.smtp_email || '').trim();
+  const prov = smtpProviders.lookup(smtpEmail);
+  const smtp_host = (req.body.smtp_host_manual || '').trim() || (prov ? prov.host : '');
+  const smtp_port = Number(req.body.smtp_port_manual) || (prov ? prov.port : 587);
+  const smtp_user = smtpEmail;
+  const smtp_from = smtpEmail ? `${store_name} <${smtpEmail}>` : '';
+  // Só troca a senha se uma nova foi digitada (senão mantém a atual).
+  const smtp_pass = req.body.smtp_pass ? req.body.smtp_pass : (req.user.smtp_pass || '');
+
   db.prepare(`
     UPDATE users SET
       store_name=@store_name,
@@ -100,17 +117,13 @@ router.post('/config', (req, res) => {
     WHERE id=@id
   `).run({
     id: req.user.id,
-    store_name: (req.body.store_name || '').trim() || 'Minha Loja',
+    store_name,
     wa_provider: req.body.wa_provider || '',
     wa_api_url: req.body.wa_api_url || '',
     wa_api_token: req.body.wa_api_token || '',
     wa_instance: req.body.wa_instance || '',
     wa_client_token: req.body.wa_client_token || '',
-    smtp_host: req.body.smtp_host || '',
-    smtp_port: Number(req.body.smtp_port) || 587,
-    smtp_user: req.body.smtp_user || '',
-    smtp_pass: req.body.smtp_pass || '',
-    smtp_from: req.body.smtp_from || '',
+    smtp_host, smtp_port, smtp_user, smtp_pass, smtp_from,
   });
   res.redirect('/config?salvo=1');
 });
@@ -199,6 +212,8 @@ router.get('/saldo', (req, res) => {
   res.render('saldo', {
     transacoes,
     testTopup: process.env.TEST_TOPUP === '1',
+    pixConfigured: pix.isConfigured(),
+    erro: null,
     salvo: req.query.salvo,
   });
 });
@@ -209,6 +224,78 @@ router.post('/saldo/recarga-teste', (req, res) => {
   const valor = Math.min(Math.max(Number(req.body.valor) || 10, 1), 1000); // R$1 a R$1000
   billing.creditar(req.user.id, Math.round(valor * 100), 'Recarga de teste');
   res.redirect('/saldo?salvo=1');
+});
+
+// Validação de CPF (dígitos verificadores).
+function cpfValido(valor) {
+  const cpf = String(valor || '').replace(/\D/g, '');
+  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+  let s = 0;
+  for (let i = 0; i < 9; i++) s += parseInt(cpf[i], 10) * (10 - i);
+  let d1 = (s * 10) % 11; if (d1 === 10) d1 = 0;
+  if (d1 !== parseInt(cpf[9], 10)) return false;
+  s = 0;
+  for (let i = 0; i < 10; i++) s += parseInt(cpf[i], 10) * (11 - i);
+  let d2 = (s * 10) % 11; if (d2 === 10) d2 = 0;
+  return d2 === parseInt(cpf[10], 10);
+}
+
+function renderSaldoErro(req, res, erro) {
+  return res.render('saldo', {
+    transacoes: db.prepare('SELECT * FROM transactions WHERE user_id = ? ORDER BY id DESC LIMIT 100').all(req.user.id),
+    testTopup: process.env.TEST_TOPUP === '1', pixConfigured: pix.isConfigured(),
+    erro, salvo: null,
+  });
+}
+
+// ---- Recarga via Pix (Roundfy) --------------------------------------------
+// Gera a cobrança Pix e leva para a página do QR code.
+router.post('/saldo/pix/criar', async (req, res) => {
+  if (!pix.isConfigured()) return res.redirect('/saldo');
+
+  const valor = Number(String(req.body.valor).replace(',', '.'));
+  const amountCents = Math.round(valor * 100);
+  if (!amountCents || amountCents < 500) {          // mínimo R$ 5,00
+    return renderSaldoErro(req, res, 'Valor mínimo de recarga: R$ 5,00.');
+  }
+
+  const cpf = (req.body.cpf || '').replace(/\D/g, '');
+  if (!cpfValido(cpf)) {
+    return renderSaldoErro(req, res, 'Informe um CPF válido para gerar o Pix.');
+  }
+
+  try {
+    const customer = { name: req.user.name, email: req.user.email, taxId: cpf };
+
+    const { txid, pix_code } = await pix.criarPix({
+      amountCents, description: `Recarga de saldo - ${req.user.email}`, customer,
+    });
+
+    db.prepare(`INSERT INTO pix_charges (user_id, txid, amount_cents, status, pix_code)
+                VALUES (?, ?, ?, 'pending', ?)`).run(req.user.id, txid, amountCents, pix_code);
+
+    res.redirect('/saldo/pix/' + encodeURIComponent(txid));
+  } catch (err) {
+    renderSaldoErro(req, res, 'Não foi possível gerar o Pix: ' + err.message);
+  }
+});
+
+// Página com o QR code do Pix (fica fazendo polling até pagar).
+router.get('/saldo/pix/:txid', async (req, res) => {
+  const charge = db.prepare('SELECT * FROM pix_charges WHERE txid = ? AND user_id = ?')
+    .get(req.params.txid, req.user.id);
+  if (!charge) return res.redirect('/saldo');
+  const qrDataUrl = await QRCode.toDataURL(charge.pix_code, { margin: 1, width: 260 });
+  res.render('saldo_pix', { charge, qrDataUrl });
+});
+
+// Status da cobrança (chamado pelo polling da página). Credita se aprovado.
+router.get('/saldo/pix/:txid/status', async (req, res) => {
+  const charge = db.prepare('SELECT id FROM pix_charges WHERE txid = ? AND user_id = ?')
+    .get(req.params.txid, req.user.id);
+  if (!charge) return res.json({ status: 'nao_encontrado' });
+  const r = await recharge.conferirEcreditar(req.params.txid);
+  res.json({ status: r.status, saldoBRL: billing.formatBRL(billing.saldo(req.user.id)) });
 });
 
 module.exports = router;

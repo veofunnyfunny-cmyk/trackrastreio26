@@ -14,7 +14,28 @@
 <form method="post" action="/mensagens">
   <div class="card">
     <h2 style="margin-top:0">💬 Mensagem de WhatsApp</h2>
-    <textarea name="msg_wpp"><%= user.msg_wpp %></textarea>
+    <div class="wa-editor">
+      <div class="wa-editor-col">
+        <label>Texto da mensagem</label>
+        <textarea name="msg_wpp" id="msg_wpp" oninput="renderWaPreview()"><%= user.msg_wpp %></textarea>
+        <p class="hint">Use as variáveis acima. O preview ao lado mostra como o cliente vai ver.</p>
+      </div>
+      <div class="wa-preview-col">
+        <label>Pré-visualização</label>
+        <div class="wa-phone">
+          <div class="wa-header">
+            <div class="wa-avatar">📦</div>
+            <div><div class="wa-name" id="wa-loja"><%= user.store_name %></div><div class="wa-online">online</div></div>
+          </div>
+          <div class="wa-chat">
+            <div class="wa-bubble">
+              <span class="wa-text" id="wa-text"></span>
+              <span class="wa-time">agora ✓✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="card">
@@ -27,5 +48,24 @@
 
   <button>Salvar mensagens</button>
 </form>
+
+<script>
+  function renderWaPreview() {
+    var raw = document.getElementById('msg_wpp').value;
+    var loja = <%- JSON.stringify(user.store_name) %>;
+    var vars = {
+      nome: 'João Silva',
+      codigo: 'RS-ABC123-4567',
+      status: 'Pedido confirmado',
+      link: window.location.origin + '/rastreio/RS-ABC123-4567',
+      loja: loja,
+    };
+    var txt = raw.replace(/\{(\w+)\}/g, function (m, k) {
+      return vars[k] !== undefined ? vars[k] : m;
+    });
+    document.getElementById('wa-text').textContent = txt || ' ';
+  }
+  renderWaPreview();
+</script>
 
 <%- include('partials/shell_end') %>

@@ -218,6 +218,40 @@ a.badge:hover { text-decoration: none; filter: brightness(.97); }
 
 .track-footer { text-align: center; margin-top: 22px; color: var(--text-subtle); font-size: 12.5px; }
 
+/* ---------- Preview estilo WhatsApp ---------- */
+.wa-editor { display: flex; gap: 22px; align-items: flex-start; }
+.wa-editor-col { flex: 1; min-width: 0; }
+.wa-editor-col textarea { min-height: 210px; }
+.wa-preview-col { width: 300px; flex-shrink: 0; }
+
+.wa-phone { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-md); }
+.wa-header { background: #075e54; color: #fff; padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
+.wa-avatar { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.wa-name { font-weight: 600; font-size: 14px; line-height: 1.2; }
+.wa-online { font-size: 11px; opacity: .8; }
+.wa-chat {
+  background-color: #efeae2;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='%23000000' fill-opacity='0.03'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Ccircle cx='42' cy='36' r='3'/%3E%3Ccircle cx='30' cy='50' r='2'/%3E%3C/g%3E%3C/svg%3E");
+  padding: 18px 12px; min-height: 230px;
+}
+.wa-bubble {
+  background: #fff; border-radius: 8px; border-top-left-radius: 0; padding: 7px 9px 5px;
+  max-width: 88%; box-shadow: 0 1px 1px rgba(0,0,0,.13); position: relative;
+  font-size: 13.5px; color: #111b21; line-height: 1.42;
+}
+.wa-bubble::before {
+  content: ''; position: absolute; top: 0; left: -7px; width: 0; height: 0;
+  border: 7px solid transparent; border-top-color: #fff; border-right: 0;
+}
+.wa-bubble .wa-text { white-space: pre-wrap; word-break: break-word; }
+.wa-bubble .wa-time { display: block; text-align: right; font-size: 10px; color: #667781; margin-top: 3px; }
+.wa-preview-col .hint { text-align: center; }
+
+@media (max-width: 720px) {
+  .wa-editor { flex-direction: column; }
+  .wa-preview-col { width: 100%; }
+}
+
 /* ---------- Responsivo ---------- */
 @media (max-width: 820px) {
   .shell { flex-direction: column; }

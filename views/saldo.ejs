@@ -4,6 +4,7 @@
 <div class="topbar"><div><h1>Saldo & Recarga</h1><p class="sub">Adicione saldo para enviar mensagens.</p></div></div>
 
 <% if (salvo) { %><div class="alert ok">Saldo adicionado!</div><% } %>
+<% if (typeof erro !== 'undefined' && erro) { %><div class="alert err"><%= erro %></div><% } %>
 
 <div class="grid cols-2">
   <div class="card">
@@ -16,21 +17,34 @@
   </div>
 
   <div class="card">
-    <h2 style="margin-top:0">Adicionar saldo</h2>
-    <% if (testTopup) { %>
-      <div class="alert warn">
-        ⚙️ <b>Modo de teste ativo.</b> O saldo abaixo é fictício, só para testar a cobrança.
-        Na versão final, aqui entra o pagamento real (Pix).
-      </div>
-      <form method="post" action="/saldo/recarga-teste" style="display:flex; gap:10px; align-items:flex-end">
-        <div style="flex:1">
-          <label>Valor (R$)</label>
-          <input type="number" name="valor" value="10" min="1" max="1000" step="1">
+    <h2 style="margin-top:0">Adicionar saldo via Pix</h2>
+    <% if (pixConfigured) { %>
+      <form method="post" action="/saldo/pix/criar">
+        <label>Valor da recarga (R$)</label>
+        <input type="number" name="valor" value="20" min="5" step="1" required>
+        <div style="display:flex; gap:8px; margin:10px 0 4px; flex-wrap:wrap">
+          <% [20, 50, 100, 200].forEach(v => { %>
+            <button type="button" class="btn-ghost btn-sm" onclick="document.querySelector('[name=valor]').value=<%= v %>">R$ <%= v %></button>
+          <% }) %>
         </div>
-        <button>Adicionar saldo de teste</button>
+        <label>CPF do pagador</label>
+        <input type="text" name="cpf" placeholder="Somente números" maxlength="14" required>
+        <button style="width:100%; margin-top:16px">Gerar Pix</button>
+        <p class="hint">Valor mínimo R$ 5,00. Você recebe um QR code para pagar.</p>
       </form>
     <% } else { %>
       <p class="sub">A recarga por Pix ainda não está configurada neste ambiente.</p>
+    <% } %>
+
+    <% if (testTopup) { %>
+      <hr style="border:none; border-top:1px solid var(--border); margin:18px 0">
+      <details>
+        <summary class="sub" style="cursor:pointer">Recarga de teste (fictícia)</summary>
+        <form method="post" action="/saldo/recarga-teste" style="display:flex; gap:10px; align-items:flex-end; margin-top:10px">
+          <div style="flex:1"><input type="number" name="valor" value="10" min="1" max="1000" step="1"></div>
+          <button class="btn-ghost">Adicionar (teste)</button>
+        </form>
+      </details>
     <% } %>
   </div>
 </div>

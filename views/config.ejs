@@ -10,7 +10,7 @@
   <div class="card">
     <h2 style="margin-top:0">🏪 Sua loja</h2>
     <label>Nome da loja</label>
-    <input type="text" name="store_name" value="<%= user.store_name %>" placeholder="Ex.: Loja do João">
+    <input type="text" name="store_name" value="<%= user.store_name %>" placeholder="Ex.: Loja do João" oninput="detectarEmail()">
     <p class="hint">Esse nome aparece no topo da página de rastreio que o seu cliente vê, e na variável <code>{loja}</code> das mensagens.</p>
   </div>
 
@@ -66,20 +66,42 @@
   </div>
 
   <!-- ================= EMAIL ================= -->
+  <% if (emailCentral) { %>
+  <div class="card">
+    <h2 style="margin-top:0">✉️ E-mail</h2>
+    <div class="alert ok" style="margin-bottom:0">
+      ✅ O envio de e-mail já está ativo pelo sistema. Os e-mails saem com o <b>nome da sua loja</b> como remetente — você não precisa configurar nada aqui.
+    </div>
+  </div>
+  <% } else { %>
   <div class="card">
     <h2 style="margin-top:0">✉️ E-mail (opcional)</h2>
-    <p class="hint" style="margin-top:0">Se usar Gmail, crie uma "Senha de app" (Conta Google › Segurança › Verificação em duas etapas › Senhas de app) e use ela no campo Senha.</p>
+    <p class="hint" style="margin-top:0">Preencha se quiser que os e-mails de rastreio saiam com o e-mail e o nome da sua loja. É só o e-mail e a senha — o resto o sistema descobre sozinho.</p>
+
     <div class="row">
-      <div><label>Host SMTP</label><input name="smtp_host" value="<%= user.smtp_host %>" placeholder="smtp.gmail.com"></div>
-      <div><label>Porta</label><input name="smtp_port" value="<%= user.smtp_port %>" placeholder="587"></div>
+      <div>
+        <label>Seu e-mail de envio</label>
+        <input type="email" name="smtp_email" id="smtp_email" value="<%= user.smtp_user %>" placeholder="sualoja@gmail.com" oninput="detectarEmail()">
+      </div>
+      <div>
+        <label>Senha</label>
+        <input type="password" name="smtp_pass" placeholder="<%= user.smtp_pass ? '•••••• (já salva)' : 'senha do e-mail' %>">
+      </div>
     </div>
-    <div class="row">
-      <div><label>Usuário</label><input name="smtp_user" value="<%= user.smtp_user %>" placeholder="seu@email.com"></div>
-      <div><label>Senha</label><input type="password" name="smtp_pass" value="<%= user.smtp_pass %>"></div>
-    </div>
-    <label>Remetente (from)</label>
-    <input name="smtp_from" value="<%= user.smtp_from %>" placeholder="Minha Loja <seu@email.com>">
+
+    <div id="email-help" class="alert info" style="display:none; margin-top:12px"></div>
+
+    <p class="hint">O remetente vai aparecer como <b><span id="from-preview"><%= user.store_name %></span> &lt;seu-email&gt;</b>.</p>
+
+    <details style="margin-top:8px">
+      <summary class="hint" style="cursor:pointer">Meu provedor não foi reconhecido (configurar manualmente)</summary>
+      <div class="row" style="margin-top:10px">
+        <div><label>Host SMTP</label><input name="smtp_host_manual" value="<%= user.smtp_host %>" placeholder="smtp.seuprovedor.com"></div>
+        <div><label>Porta</label><input name="smtp_port_manual" value="<%= user.smtp_port %>" placeholder="587"></div>
+      </div>
+    </details>
   </div>
+  <% } %>
 
   <button>Salvar configurações</button>
 </form>
@@ -91,6 +113,44 @@
     document.getElementById('wa_url_row').style.display = (p === 'z-api') ? 'none' : 'block';
   }
   toggleProvider();
+
+  // ---- Detecção automática do provedor de e-mail ----
+  var SMTP_PROVIDERS = {
+    'gmail.com': { nome: 'Gmail', appPass: true },
+    'googlemail.com': { nome: 'Gmail', appPass: true },
+    'outlook.com': { nome: 'Outlook', appPass: false },
+    'hotmail.com': { nome: 'Outlook', appPass: false },
+    'live.com': { nome: 'Outlook', appPass: false },
+    'yahoo.com': { nome: 'Yahoo', appPass: true },
+    'yahoo.com.br': { nome: 'Yahoo', appPass: true },
+    'icloud.com': { nome: 'iCloud', appPass: true },
+    'zoho.com': { nome: 'Zoho', appPass: false },
+    'uol.com.br': { nome: 'UOL', appPass: false },
+    'bol.com.br': { nome: 'BOL', appPass: false },
+  };
+  function detectarEmail() {
+    var emailInput = document.getElementById('smtp_email');
+    if (!emailInput) return; // seção de e-mail escondida (modo conta central)
+    var email = (emailInput.value || '').trim();
+    var dom = (email.split('@')[1] || '').toLowerCase();
+    var box = document.getElementById('email-help');
+    var storeInput = document.querySelector('[name=store_name]');
+    document.getElementById('from-preview').textContent = (storeInput && storeInput.value.trim()) || 'Minha Loja';
+    if (!dom) { box.style.display = 'none'; return; }
+    var p = SMTP_PROVIDERS[dom];
+    box.style.display = 'block';
+    if (p) {
+      var msg = '✅ <b>' + p.nome + '</b> reconhecido — o servidor é configurado automaticamente.';
+      if (p.appPass) {
+        msg += '<br>⚠️ Este provedor exige uma <b>senha de app</b> (não a senha normal da conta).';
+        if (p.nome === 'Gmail') msg += ' Gere em: Conta Google › Segurança › Verificação em duas etapas › Senhas de app.';
+      }
+      box.innerHTML = msg;
+    } else {
+      box.innerHTML = '❔ Provedor não reconhecido. Abra "configurar manualmente" abaixo e informe o servidor SMTP.';
+    }
+  }
+  detectarEmail();
 
   async function testarWhatsapp(btn) {
     var out = document.getElementById('wa_test_result');

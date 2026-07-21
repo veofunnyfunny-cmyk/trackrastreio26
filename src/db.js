@@ -129,6 +129,19 @@ CREATE TABLE IF NOT EXISTS transactions (
   created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 CREATE INDEX IF NOT EXISTS idx_tx_user ON transactions(user_id);
+
+-- Cobranças Pix (recargas de saldo via gateway Roundfy).
+CREATE TABLE IF NOT EXISTS pix_charges (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  txid          TEXT    NOT NULL UNIQUE,
+  amount_cents  INTEGER NOT NULL,
+  status        TEXT    NOT NULL DEFAULT 'pending',   -- pending | paid
+  pix_code      TEXT,
+  created_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+  paid_at       TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_pix_user ON pix_charges(user_id);
 `);
 
 module.exports = db;
