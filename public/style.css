@@ -209,13 +209,17 @@ a.badge:hover { text-decoration: none; filter: brightness(.97); }
 
 .auth-form-side { width: 500px; max-width: 100%; display: flex; align-items: center; justify-content: center; padding: 40px 28px; background: var(--surface); }
 .form-inner { width: 100%; max-width: 360px; }
-.form-inner .mobile-brand { display: none; }
 .form-inner h2 { font-size: 24px; letter-spacing: -.02em; margin: 0 0 4px; }
+.mobile-hero { display: none; } /* arte vertical só aparece no celular */
 
 @media (max-width: 900px) {
   .auth-hero { display: none; }
-  .auth-form-side { width: 100%; background: var(--bg); }
-  .form-inner .mobile-brand { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 22px; font-weight: 800; margin-bottom: 24px; }
+  .auth-form-side {
+    width: 100%; background: var(--surface);
+    flex-direction: column; align-items: stretch; justify-content: flex-start; padding: 0;
+  }
+  .mobile-hero { display: block; width: 100%; height: auto; }
+  .form-inner { max-width: 400px; margin: 0 auto; padding: 30px 24px 40px; }
 }
 
 /* ============================================================
