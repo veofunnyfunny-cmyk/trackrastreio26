@@ -52,6 +52,17 @@
     </label>
   </div>
 
+  <!-- ================= AVISOS AUTOMÁTICOS ================= -->
+  <div class="card">
+    <h2 style="margin-top:0">🔔 Avisos automáticos de atualização</h2>
+    <p class="hint" style="margin-top:0">Com isso ligado, o sistema avisa o cliente <b>sozinho</b> a cada nova etapa do pedido (saiu de SP, a caminho, saiu para entrega...). Ele fica informado sem precisar clicar no link toda hora — <b>reduz muito reembolso/MED</b>.</p>
+    <label style="display:flex; align-items:center; gap:10px; margin:14px 0 0; cursor:pointer">
+      <input type="checkbox" name="auto_updates" value="1" style="width:auto" <%= user.auto_updates ? 'checked' : '' %>>
+      <span><b>Ligar avisos automáticos</b></span>
+    </label>
+    <p class="hint">⚠️ Cada aviso é cobrado como uma mensagem normal (pelos canais ligados acima). Você controla o custo ligando/desligando aqui. A mensagem de aviso é editável na aba <a href="/mensagens">Mensagens</a>.</p>
+  </div>
+
   <div class="card" style="display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap">
     <div>
       <h2 style="margin:0">💬 WhatsApp</h2>

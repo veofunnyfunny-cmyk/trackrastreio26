@@ -123,6 +123,13 @@ if (!userCols.includes('notify_sms')) {
 if (!userCols.includes('msg_sms')) {
   db.exec("ALTER TABLE users ADD COLUMN msg_sms TEXT DEFAULT 'Pedido confirmado! Rastreie seu pedido {codigo} em: {link}'");
 }
+// Avisos automáticos de atualização (o sistema avisa o cliente a cada etapa).
+if (!userCols.includes('auto_updates')) {
+  db.exec('ALTER TABLE users ADD COLUMN auto_updates INTEGER NOT NULL DEFAULT 0');
+}
+if (!userCols.includes('msg_update')) {
+  db.exec("ALTER TABLE users ADD COLUMN msg_update TEXT DEFAULT '📦 Atualização do seu pedido {codigo}!\n\n{detalhe}\n\nAcompanhe: {link}'");
+}
 // Nome do arquivo da logo da loja (aparece na página de rastreio).
 if (!userCols.includes('logo_file')) {
   db.exec("ALTER TABLE users ADD COLUMN logo_file TEXT DEFAULT ''");
@@ -161,6 +168,7 @@ for (const [col, def] of [
   ['customer_cep', "TEXT DEFAULT ''"],
   ['customer_city', "TEXT DEFAULT ''"],
   ['customer_state', "TEXT DEFAULT ''"],
+  ['last_notified_stage', 'INTEGER NOT NULL DEFAULT 0'], // última etapa já avisada
 ]) {
   if (!trackCols.includes(col)) db.exec(`ALTER TABLE trackings ADD COLUMN ${col} ${def}`);
 }

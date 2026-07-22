@@ -47,6 +47,14 @@
   </div>
 
   <div class="card">
+    <h2 style="margin-top:0">🔔 Aviso de atualização (automático)</h2>
+    <p class="hint" style="margin-top:0">Mensagem enviada a cada nova etapa do pedido (se os "avisos automáticos" estiverem ligados em Configurações). Use <code>{detalhe}</code> pra inserir a atualização da etapa.</p>
+    <label>Mensagem</label>
+    <textarea name="msg_update"><%= user.msg_update %></textarea>
+    <p class="tags">Variáveis: <code>{nome}</code><code>{codigo}</code><code>{detalhe}</code><code>{status}</code><code>{link}</code><code>{loja}</code></p>
+  </div>
+
+  <div class="card">
     <h2 style="margin-top:0">📱 SMS</h2>
     <label>Mensagem (curta)</label>
     <textarea name="msg_sms" id="msg_sms" maxlength="300" style="min-height:80px" oninput="contarSms()"><%= user.msg_sms %></textarea>

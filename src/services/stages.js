@@ -82,4 +82,21 @@ function statusAtual(t) {
   return timeline(t).statusAtual;
 }
 
-module.exports = { STAGES, timeline, statusAtual, destinoTexto };
+// Índice da etapa atual (0 = primeira). Usado pelos avisos automáticos.
+function etapaAtualIndex(t, overrideDias) {
+  const created = parseCreated(t);
+  const dias = (overrideDias !== undefined && overrideDias !== null && overrideDias !== '' && !isNaN(overrideDias))
+    ? Number(overrideDias)
+    : (Date.now() - created.getTime()) / DIA_MS;
+  let idx = 0;
+  for (let i = 0; i < STAGES.length; i++) if (STAGES[i].dias <= dias) idx = i;
+  return idx;
+}
+
+// Dados de uma etapa (status + descrição já com {destino} preenchido).
+function etapa(t, i) {
+  const s = STAGES[i] || STAGES[0];
+  return { status: s.status, detalhe: render(s.desc, t) };
+}
+
+module.exports = { STAGES, timeline, statusAtual, destinoTexto, etapaAtualIndex, etapa };

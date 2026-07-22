@@ -83,13 +83,14 @@ router.get('/mensagens', (req, res) => {
 
 router.post('/mensagens', (req, res) => {
   db.prepare(`
-    UPDATE users SET msg_wpp=@msg_wpp, email_subject=@email_subject, msg_email=@msg_email, msg_sms=@msg_sms WHERE id=@id
+    UPDATE users SET msg_wpp=@msg_wpp, email_subject=@email_subject, msg_email=@msg_email, msg_sms=@msg_sms, msg_update=@msg_update WHERE id=@id
   `).run({
     id: req.user.id,
     msg_wpp: req.body.msg_wpp || '',
     email_subject: req.body.email_subject || '',
     msg_email: req.body.msg_email || '',
     msg_sms: (req.body.msg_sms || '').slice(0, 300),
+    msg_update: req.body.msg_update || '',
   });
   res.redirect('/mensagens?salvo=1');
 });
@@ -139,16 +140,18 @@ router.post('/config', (req, res) => {
   const notify_whatsapp = req.body.notify_whatsapp ? 1 : 0;
   const notify_email = req.body.notify_email ? 1 : 0;
   const notify_sms = req.body.notify_sms ? 1 : 0;
+  const auto_updates = req.body.auto_updates ? 1 : 0;
 
   db.prepare(`
     UPDATE users SET
       store_name=@store_name,
       notify_whatsapp=@notify_whatsapp, notify_email=@notify_email, notify_sms=@notify_sms,
+      auto_updates=@auto_updates,
       smtp_host=@smtp_host, smtp_port=@smtp_port, smtp_user=@smtp_user, smtp_pass=@smtp_pass, smtp_from=@smtp_from
     WHERE id=@id
   `).run({
     id: req.user.id,
-    store_name, notify_whatsapp, notify_email, notify_sms,
+    store_name, notify_whatsapp, notify_email, notify_sms, auto_updates,
     smtp_host, smtp_port, smtp_user, smtp_pass, smtp_from,
   });
   res.redirect('/config?salvo=1');

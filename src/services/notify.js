@@ -94,4 +94,40 @@ async function notificarCliente(user, tracking, baseUrl, canais = null) {
   return resultados;
 }
 
-module.exports = { notificarCliente, montarVars };
+// Envia um AVISO DE ATUALIZAÇÃO (etapa nova da jornada) pelos canais ativos.
+// Retorna os resultados; considera-se sucesso se pelo menos um canal enviou.
+async function notificarAtualizacao(user, tracking, baseUrl, etapa) {
+  const vars = {
+    nome: tracking.customer_name || 'cliente',
+    codigo: tracking.code,
+    status: etapa.status,
+    detalhe: etapa.detalhe,
+    link: `${baseUrl}/rastreio/${tracking.code}`,
+    loja: user.store_name || '',
+  };
+  const texto = renderTemplate(user.msg_update, vars);
+  const resultados = [];
+
+  if (user.notify_whatsapp) {
+    resultados.push(await enviarComCobranca(
+      user, tracking, 'whatsapp', tracking.customer_phone, texto,
+      () => enviarWhatsapp(user, tracking.customer_phone, texto)
+    ));
+  }
+  if (user.notify_email) {
+    const assunto = `Atualização do seu pedido ${tracking.code}`;
+    resultados.push(await enviarComCobranca(
+      user, tracking, 'email', tracking.customer_email, texto,
+      () => enviarEmail(user, tracking.customer_email, assunto, texto)
+    ));
+  }
+  if (user.notify_sms) {
+    resultados.push(await enviarComCobranca(
+      user, tracking, 'sms', tracking.customer_phone, texto,
+      () => enviarSms(tracking.customer_phone, texto)
+    ));
+  }
+  return resultados;
+}
+
+module.exports = { notificarCliente, notificarAtualizacao, montarVars };

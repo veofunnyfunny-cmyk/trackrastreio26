@@ -52,4 +52,6 @@ app.use((req, res) => res.status(404).send('Página não encontrada'));
 
 app.listen(PORT, () => {
   console.log(`\n✅ Sistema de rastreio rodando em http://localhost:${PORT}\n`);
+  // Avisos automáticos de atualização (roda em segundo plano).
+  require('./src/services/scheduler').iniciar();
 });
