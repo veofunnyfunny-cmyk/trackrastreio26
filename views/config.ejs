@@ -53,14 +53,23 @@
   </div>
 
   <!-- ================= AVISOS AUTOMÁTICOS ================= -->
-  <div class="card">
-    <h2 style="margin-top:0">🔔 Avisos automáticos de atualização</h2>
-    <p class="hint" style="margin-top:0">Com isso ligado, o sistema avisa o cliente <b>sozinho</b> a cada nova etapa do pedido (saiu de SP, a caminho, saiu para entrega...). Ele fica informado sem precisar clicar no link toda hora — <b>reduz muito reembolso/MED</b>.</p>
-    <label style="display:flex; align-items:center; gap:10px; margin:14px 0 0; cursor:pointer">
+  <div class="card" style="border:2px solid var(--brand)">
+    <h2 style="margin-top:0">🔔 Avisos automáticos de atualização <span class="badge ok" style="vertical-align:middle">Recomendado</span></h2>
+    <p style="margin-top:0">O cliente que fica <b>inseguro</b> é o que abre <b>MED / pede reembolso</b>. Quando ele recebe as atualizações do pedido <b>sozinho no WhatsApp</b> ("saiu de São Paulo", "está a caminho", "saiu para entrega"), ele fica tranquilo e <b>não abre disputa</b>. Mesmo o cliente mais velho, que não fica clicando no link, recebe tudo na mão.</p>
+
+    <div class="alert ok" style="margin:14px 0">
+      💡 <b>Um único MED evitado paga dezenas de avisos.</b> É o recurso que mais protege o seu faturamento.
+    </div>
+
+    <div class="alert warn" style="margin:14px 0">
+      💰 <b>Atenção ao custo:</b> cada aviso enviado é cobrado como uma mensagem — <b><%= billing.formatBRL(billing.PRECOS.whatsapp) %> por aviso no WhatsApp</b><% if (user.notify_email) { %> (+ <%= billing.formatBRL(billing.PRECOS.email) %> se o e-mail estiver ligado)<% } %>. São ~6 avisos ao longo da jornada do pedido. Você controla ligando/desligando aqui a qualquer momento.
+    </div>
+
+    <label style="display:flex; align-items:center; gap:10px; margin:6px 0 0; cursor:pointer">
       <input type="checkbox" name="auto_updates" value="1" style="width:auto" <%= user.auto_updates ? 'checked' : '' %>>
-      <span><b>Ligar avisos automáticos</b></span>
+      <span><b>Ligar avisos automáticos</b> (o cliente recebe cada atualização no WhatsApp)</span>
     </label>
-    <p class="hint">⚠️ Cada aviso é cobrado como uma mensagem normal (pelos canais ligados acima). Você controla o custo ligando/desligando aqui. A mensagem de aviso é editável na aba <a href="/mensagens">Mensagens</a>.</p>
+    <p class="hint">A mensagem de aviso é editável na aba <a href="/mensagens">Mensagens</a>.</p>
   </div>
 
   <div class="card" style="display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap">
