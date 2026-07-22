@@ -20,6 +20,7 @@
       <a href="/logs"      class="<%= active==='logs'      ? 'active' : '' %>">Logs de envio</a>
       <% if (typeof isAdmin !== 'undefined' && isAdmin) { %>
         <a href="/admin" class="<%= active==='admin' ? 'active' : '' %>" style="color:var(--brand); font-weight:600">⚙️ Admin</a>
+        <a href="/admin/indicacoes" class="<%= active==='indicacoes' ? 'active' : '' %>" style="color:var(--brand); font-weight:600">🔗 Indicações</a>
       <% } %>
     </nav>
     <div class="spacer"></div>

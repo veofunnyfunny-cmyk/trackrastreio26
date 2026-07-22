@@ -12,9 +12,14 @@ const insertUser = db.prepare(`
   VALUES (@name, @email, @password_hash, @webhook_token)
 `);
 
+const findReferrerByCode = db.prepare('SELECT * FROM referrers WHERE code = ?');
+
 router.get('/register', (req, res) => {
+  // Guarda a indicação (?ref=CODE) na sessão para vincular no cadastro.
+  if (req.query.ref) req.session.ref = String(req.query.ref).trim();
   if (req.session.userId) return res.redirect('/');
-  res.render('register', { erro: null, dados: {} });
+  const indicador = req.session.ref ? findReferrerByCode.get(req.session.ref) : null;
+  res.render('register', { erro: null, dados: {}, indicador: indicador || null });
 });
 
 router.post('/register', (req, res) => {
@@ -22,19 +27,22 @@ router.post('/register', (req, res) => {
   const email = (req.body.email || '').trim().toLowerCase();
   const password = req.body.password || '';
 
-  if (!name || !email || !password) {
-    return res.render('register', { erro: 'Preencha todos os campos.', dados: { name, email } });
-  }
-  if (password.length < 6) {
-    return res.render('register', { erro: 'A senha precisa ter pelo menos 6 caracteres.', dados: { name, email } });
-  }
-  if (findByEmail.get(email)) {
-    return res.render('register', { erro: 'Já existe uma conta com esse e-mail.', dados: { name, email } });
-  }
+  const indicador = req.session.ref ? findReferrerByCode.get(req.session.ref) : null;
+  const rerender = (erro) => res.render('register', { erro, dados: { name, email }, indicador: indicador || null });
+
+  if (!name || !email || !password) return rerender('Preencha todos os campos.');
+  if (password.length < 6) return rerender('A senha precisa ter pelo menos 6 caracteres.');
+  if (findByEmail.get(email)) return rerender('Já existe uma conta com esse e-mail.');
 
   const password_hash = bcrypt.hashSync(password, 10);
   const webhook_token = crypto.randomBytes(18).toString('hex');
   const info = insertUser.run({ name, email, password_hash, webhook_token });
+
+  // Vincula o novo usuário ao indicador (se veio por um link de indicação).
+  if (indicador) {
+    db.prepare('UPDATE users SET referrer_id = ? WHERE id = ?').run(indicador.id, info.lastInsertRowid);
+    delete req.session.ref;
+  }
 
   req.session.userId = info.lastInsertRowid;
   res.redirect('/');

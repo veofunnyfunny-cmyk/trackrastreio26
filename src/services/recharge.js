@@ -19,6 +19,18 @@ const marcarPagoECreditar = db.transaction((chargeId) => {
   if (!fresh || fresh.status === 'paid') return false; // já creditado
   db.prepare("UPDATE pix_charges SET status='paid', paid_at=datetime('now') WHERE id = ?").run(chargeId);
   billing.creditar(fresh.user_id, fresh.amount_cents, 'Recarga via Pix', fresh.txid);
+
+  // Comissão de indicação: se o depositante veio por um link de indicação,
+  // registra a comissão (% do depósito) para o indicador.
+  const u = db.prepare('SELECT referrer_id FROM users WHERE id = ?').get(fresh.user_id);
+  if (u && u.referrer_id) {
+    const ref = db.prepare('SELECT percent FROM referrers WHERE id = ?').get(u.referrer_id);
+    if (ref) {
+      const commission = Math.round((fresh.amount_cents * ref.percent) / 100);
+      db.prepare(`INSERT INTO referral_earnings (referrer_id, user_id, deposit_cents, percent, commission_cents)
+                  VALUES (?, ?, ?, ?, ?)`).run(u.referrer_id, fresh.user_id, fresh.amount_cents, ref.percent, commission);
+    }
+  }
   return true;
 });
 

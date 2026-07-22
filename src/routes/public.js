@@ -9,6 +9,11 @@ const { UPLOAD_DIR } = require('../services/uploads');
 
 const router = express.Router();
 
+// Link curto de indicação: /r/CODE leva pro cadastro já com a indicação.
+router.get('/r/:code', (req, res) => {
+  res.redirect('/register?ref=' + encodeURIComponent(req.params.code));
+});
+
 // Serve a logo de uma loja (usada na página de rastreio).
 router.get('/loja-logo/:id', (req, res) => {
   const u = db.prepare('SELECT logo_file FROM users WHERE id = ?').get(req.params.id);

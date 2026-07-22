@@ -1,0 +1,69 @@
+<%- include('../partials/head', { title: 'Indicador - ' + ref.name }) %>
+<%- include('../partials/shell', { active: 'indicacoes' }) %>
+
+<div class="topbar">
+  <div><h1><%= ref.name %></h1><p class="sub">Comissão de <b><%= ref.percent %>%</b> sobre cada depósito.</p></div>
+  <a href="/admin/indicacoes" class="btn btn-ghost">← Voltar</a>
+</div>
+
+<div class="card">
+  <label>Link de indicação</label>
+  <div class="codebox">
+    <span id="lk"><%= base %>/r/<%= ref.code %></span>
+    <button type="button" class="btn-ghost btn-sm" onclick="cp('lk',this)">Copiar</button>
+  </div>
+</div>
+
+<div class="grid cols-3">
+  <div class="card stat"><div class="num"><%= ref.signups %></div><div class="lbl">Cadastros indicados</div></div>
+  <div class="card stat"><div class="num"><%= billing.formatBRL(ref.total_dep) %></div><div class="lbl">Total depositado</div></div>
+  <div class="card stat"><div class="num" style="color:var(--success)"><%= billing.formatBRL(ref.total_com) %></div><div class="lbl">Comissão gerada</div></div>
+</div>
+
+<h2>Ganhos (por depósito)</h2>
+<div class="card">
+  <% if (earnings.length === 0) { %>
+    <p class="sub">Nenhuma comissão ainda. Aparece quando um indicado deposita.</p>
+  <% } else { %>
+    <table>
+      <thead><tr><th>Quando</th><th>Indicado</th><th>Depósito</th><th>%</th><th style="text-align:right">Comissão</th></tr></thead>
+      <tbody>
+        <% earnings.forEach(e => { %>
+          <tr>
+            <td class="sub" style="font-size:12px"><%= e.created_at %></td>
+            <td class="sub" style="font-size:13px"><%= e.email || '—' %></td>
+            <td><%= billing.formatBRL(e.deposit_cents) %></td>
+            <td><%= e.percent %>%</td>
+            <td style="text-align:right" class="money-in"><%= billing.formatBRL(e.commission_cents) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<h2>Cadastros indicados</h2>
+<div class="card">
+  <% if (usuarios.length === 0) { %>
+    <p class="sub">Nenhum cadastro por esse link ainda.</p>
+  <% } else { %>
+    <table>
+      <thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Cadastro</th></tr></thead>
+      <tbody>
+        <% usuarios.forEach(u => { %>
+          <tr><td>#<%= u.id %></td><td><%= u.name %></td><td class="sub" style="font-size:13px"><%= u.email %></td><td class="sub" style="font-size:12px"><%= u.created_at %></td></tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<script>
+  function cp(id, btn) {
+    navigator.clipboard.writeText(document.getElementById(id).innerText).then(() => {
+      var t = btn.innerText; btn.innerText = 'Copiado!'; setTimeout(() => btn.innerText = t, 1200);
+    });
+  }
+</script>
+
+<%- include('../partials/shell_end') %>

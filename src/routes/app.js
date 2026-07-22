@@ -269,8 +269,8 @@ router.post('/saldo/pix/criar', async (req, res) => {
 
   const valor = Number(String(req.body.valor).replace(',', '.'));
   const amountCents = Math.round(valor * 100);
-  if (!amountCents || amountCents < 3000) {         // mínimo R$ 30,00
-    return renderSaldoErro(req, res, 'Valor mínimo de recarga: R$ 30,00.');
+  if (!amountCents || amountCents < 5000) {         // mínimo R$ 50,00
+    return renderSaldoErro(req, res, 'Valor mínimo de recarga: R$ 50,00.');
   }
 
   const cpf = (req.body.cpf || '').replace(/\D/g, '');
@@ -379,6 +379,53 @@ router.post('/admin/voltar', (req, res) => {
     delete req.session.adminId;
   }
   res.redirect('/admin');
+});
+
+// ---- Admin: Programa de Indicação ----------------------------------------
+function statsIndicador(r) {
+  r.signups = db.prepare('SELECT COUNT(*) c FROM users WHERE referrer_id = ?').get(r.id).c;
+  const a = db.prepare('SELECT COALESCE(SUM(deposit_cents),0) dep, COALESCE(SUM(commission_cents),0) com FROM referral_earnings WHERE referrer_id = ?').get(r.id);
+  r.total_dep = a.dep; r.total_com = a.com;
+  return r;
+}
+
+router.get('/admin/indicacoes', requireAdmin, (req, res) => {
+  const refs = db.prepare('SELECT * FROM referrers ORDER BY id DESC').all().map(statsIndicador);
+  res.render('admin/referrals', { refs, base: baseUrl(req), salvo: req.query.salvo });
+});
+
+router.post('/admin/indicacoes/criar', requireAdmin, (req, res) => {
+  const name = (req.body.name || '').trim();
+  const percent = Math.max(0, Math.min(100, Number(String(req.body.percent).replace(',', '.')) || 0));
+  if (!name) return res.redirect('/admin/indicacoes');
+  let code;
+  for (let i = 0; i < 12; i++) {
+    code = crypto.randomBytes(4).toString('hex');
+    if (!db.prepare('SELECT 1 FROM referrers WHERE code = ?').get(code)) break;
+  }
+  db.prepare('INSERT INTO referrers (name, code, percent) VALUES (?, ?, ?)').run(name, code, percent);
+  res.redirect('/admin/indicacoes?salvo=1');
+});
+
+router.post('/admin/indicacoes/:id/percent', requireAdmin, (req, res) => {
+  const percent = Math.max(0, Math.min(100, Number(String(req.body.percent).replace(',', '.')) || 0));
+  db.prepare('UPDATE referrers SET percent = ? WHERE id = ?').run(percent, req.params.id);
+  res.redirect('/admin/indicacoes?salvo=1');
+});
+
+router.post('/admin/indicacoes/:id/remover', requireAdmin, (req, res) => {
+  db.prepare('DELETE FROM referrers WHERE id = ?').run(req.params.id);
+  res.redirect('/admin/indicacoes');
+});
+
+router.get('/admin/indicacoes/:id', requireAdmin, (req, res) => {
+  const ref = statsIndicador(db.prepare('SELECT * FROM referrers WHERE id = ?').get(req.params.id) || {});
+  if (!ref.id) return res.redirect('/admin/indicacoes');
+  const earnings = db.prepare(
+    'SELECT e.*, u.email FROM referral_earnings e LEFT JOIN users u ON u.id = e.user_id WHERE e.referrer_id = ? ORDER BY e.id DESC LIMIT 100'
+  ).all(ref.id);
+  const usuarios = db.prepare('SELECT id, name, email, created_at FROM users WHERE referrer_id = ? ORDER BY id DESC').all(ref.id);
+  res.render('admin/referral', { ref, earnings, usuarios, base: baseUrl(req) });
 });
 
 module.exports = router;

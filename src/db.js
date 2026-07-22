@@ -120,6 +120,33 @@ if (!userCols.includes('notify_email')) {
 if (!userCols.includes('logo_file')) {
   db.exec("ALTER TABLE users ADD COLUMN logo_file TEXT DEFAULT ''");
 }
+// Qual indicador trouxe este usuário (programa de indicação).
+if (!userCols.includes('referrer_id')) {
+  db.exec('ALTER TABLE users ADD COLUMN referrer_id INTEGER REFERENCES referrers(id)');
+}
+
+// Indicadores (links de indicação) — gerenciados no painel Admin.
+db.exec(`
+CREATE TABLE IF NOT EXISTS referrers (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  name        TEXT    NOT NULL,               -- nome do parceiro/gateway
+  code        TEXT    NOT NULL UNIQUE,         -- código do link (/r/CODE)
+  percent     REAL    NOT NULL DEFAULT 10,     -- % de comissão sobre o depósito
+  created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Ganhos de indicação (comissão gerada a cada depósito de um indicado).
+CREATE TABLE IF NOT EXISTS referral_earnings (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  referrer_id   INTEGER NOT NULL REFERENCES referrers(id) ON DELETE CASCADE,
+  user_id       INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  deposit_cents INTEGER NOT NULL,             -- valor depositado pelo indicado
+  percent       REAL    NOT NULL,             -- % aplicada no momento
+  commission_cents INTEGER NOT NULL,          -- comissão gerada
+  created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_earn_ref ON referral_earnings(referrer_id);
+`);
 
 // Endereço de destino do comprador (usado na jornada de rastreio).
 const trackCols = db.prepare('PRAGMA table_info(trackings)').all().map((c) => c.name);
