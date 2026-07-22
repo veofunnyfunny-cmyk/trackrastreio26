@@ -1,7 +1,14 @@
 <%- include('partials/head', { title: 'Logs - Rastreio' }) %>
 <%- include('partials/shell', { active: 'logs' }) %>
 
-<div class="topbar"><div><h1>Logs de envio</h1><p class="sub">Histórico de mensagens (WhatsApp e e-mail).</p></div></div>
+<div class="topbar">
+  <div><h1>Logs de envio</h1><p class="sub">Histórico de mensagens (WhatsApp, e-mail e SMS).</p></div>
+  <% if (logs.length > 0) { %>
+    <form method="post" action="/logs/limpar" onsubmit="return confirm('Limpar todo o histórico de logs?')">
+      <button class="btn-ghost btn-sm">Limpar logs</button>
+    </form>
+  <% } %>
+</div>
 
 <div class="card">
   <% if (logs.length === 0) { %>

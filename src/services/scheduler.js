@@ -7,6 +7,7 @@
 const db = require('../db');
 const stages = require('./stages');
 const notify = require('./notify');
+const billing = require('./billing');
 
 function siteUrl() {
   const u = process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
@@ -28,6 +29,16 @@ async function tick() {
       if (idx <= (t.last_notified_stage || 0)) continue; // nenhuma etapa nova
       const user = db.prepare('SELECT * FROM users WHERE id = ?').get(t.user_id);
       if (!user) continue;
+
+      // Canais ligados e o preço do mais barato.
+      const precos = [];
+      if (user.notify_whatsapp) precos.push(billing.preco('whatsapp'));
+      if (user.notify_email) precos.push(billing.preco('email'));
+      if (user.notify_sms) precos.push(billing.preco('sms'));
+      if (precos.length === 0) continue; // nenhum canal ligado
+      // Sem saldo pra nenhum canal: pula em silêncio (não polui o log; tenta
+      // de novo quando tiver saldo).
+      if (billing.saldo(user.id) < Math.min(...precos)) continue;
 
       const et = stages.etapa(t, idx);
       const resultados = await notify.notificarAtualizacao(user, t, base, et);

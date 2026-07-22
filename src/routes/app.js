@@ -227,6 +227,12 @@ router.get('/logs', (req, res) => {
   res.render('logs', { logs });
 });
 
+// Limpa os logs de envio da conta.
+router.post('/logs/limpar', (req, res) => {
+  db.prepare('DELETE FROM message_logs WHERE user_id = ?').run(req.user.id);
+  res.redirect('/logs');
+});
+
 // ---- Saldo e extrato ------------------------------------------------------
 router.get('/saldo', (req, res) => {
   const transacoes = db.prepare(
