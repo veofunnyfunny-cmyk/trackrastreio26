@@ -7,7 +7,7 @@
 
 const db = require('../db');
 
-const PRECOS = { whatsapp: 100, email: 50 };
+const PRECOS = { whatsapp: 100, email: 50, sms: 50 };
 
 const getBal = db.prepare('SELECT balance_cents FROM users WHERE id = ?');
 const addBal = db.prepare('UPDATE users SET balance_cents = balance_cents + ? WHERE id = ?');
@@ -34,9 +34,10 @@ function temSaldo(userId, canal) {
 const _cobrar = db.transaction((userId, canal, trackingId) => {
   const amount = preco(canal);
   addBal.run(-amount, userId);
+  const nomes = { whatsapp: 'WhatsApp', email: 'e-mail', sms: 'SMS' };
   insertTx.run({
     user_id: userId, kind: 'debito', amount_cents: amount,
-    description: `Envio ${canal === 'whatsapp' ? 'WhatsApp' : 'e-mail'}`,
+    description: `Envio ${nomes[canal] || canal}`,
     channel: canal, tracking_id: trackingId || null, provider_ref: null,
   });
 });

@@ -14,6 +14,7 @@ const recharge = require('../services/recharge');
 const QRCode = require('qrcode');
 const smtpProviders = require('../services/smtpProviders');
 const mailer = require('../services/mailer');
+const sms = require('../services/sms');
 const { uploadLogo } = require('../services/uploads');
 
 const router = express.Router();
@@ -82,19 +83,23 @@ router.get('/mensagens', (req, res) => {
 
 router.post('/mensagens', (req, res) => {
   db.prepare(`
-    UPDATE users SET msg_wpp=@msg_wpp, email_subject=@email_subject, msg_email=@msg_email WHERE id=@id
+    UPDATE users SET msg_wpp=@msg_wpp, email_subject=@email_subject, msg_email=@msg_email, msg_sms=@msg_sms WHERE id=@id
   `).run({
     id: req.user.id,
     msg_wpp: req.body.msg_wpp || '',
     email_subject: req.body.email_subject || '',
     msg_email: req.body.msg_email || '',
+    msg_sms: (req.body.msg_sms || '').slice(0, 300),
   });
   res.redirect('/mensagens?salvo=1');
 });
 
 // ---- Configurações de envio (modo, WhatsApp, SMTP) ------------------------
 router.get('/config', (req, res) => {
-  res.render('config', { salvo: req.query.salvo, erro: req.query.erro, emailCentral: mailer.emailCentralAtivo() });
+  res.render('config', {
+    salvo: req.query.salvo, erro: req.query.erro,
+    emailCentral: mailer.emailCentralAtivo(), smsAtivo: sms.isConfigured(),
+  });
 });
 
 // Upload da logo da loja (aparece na página de rastreio do cliente).
@@ -133,16 +138,17 @@ router.post('/config', (req, res) => {
   // Canais de envio (checkboxes: presente = ligado).
   const notify_whatsapp = req.body.notify_whatsapp ? 1 : 0;
   const notify_email = req.body.notify_email ? 1 : 0;
+  const notify_sms = req.body.notify_sms ? 1 : 0;
 
   db.prepare(`
     UPDATE users SET
       store_name=@store_name,
-      notify_whatsapp=@notify_whatsapp, notify_email=@notify_email,
+      notify_whatsapp=@notify_whatsapp, notify_email=@notify_email, notify_sms=@notify_sms,
       smtp_host=@smtp_host, smtp_port=@smtp_port, smtp_user=@smtp_user, smtp_pass=@smtp_pass, smtp_from=@smtp_from
     WHERE id=@id
   `).run({
     id: req.user.id,
-    store_name, notify_whatsapp, notify_email,
+    store_name, notify_whatsapp, notify_email, notify_sms,
     smtp_host, smtp_port, smtp_user, smtp_pass, smtp_from,
   });
   res.redirect('/config?salvo=1');

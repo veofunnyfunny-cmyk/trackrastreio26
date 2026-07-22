@@ -5,6 +5,7 @@ const db = require('../db');
 const { renderTemplate } = require('./templates');
 const { enviarWhatsapp } = require('./whatsapp');
 const { enviarEmail } = require('./mailer');
+const { enviarSms } = require('./sms');
 const billing = require('./billing');
 
 const insertLog = db.prepare(`
@@ -61,6 +62,7 @@ async function notificarCliente(user, tracking, baseUrl, canais = null) {
   const ativos = [];
   if (user.notify_whatsapp) ativos.push('whatsapp');
   if (user.notify_email) ativos.push('email');
+  if (user.notify_sms) ativos.push('sms');
   // Se veio uma restrição explícita, cruza com os ativos.
   const enviar = canais ? ativos.filter((c) => canais.includes(c)) : ativos;
 
@@ -78,6 +80,14 @@ async function notificarCliente(user, tracking, baseUrl, canais = null) {
     resultados.push(await enviarComCobranca(
       user, tracking, 'email', tracking.customer_email, texto,
       () => enviarEmail(user, tracking.customer_email, assunto, texto)
+    ));
+  }
+
+  if (enviar.includes('sms')) {
+    const texto = renderTemplate(user.msg_sms, vars);
+    resultados.push(await enviarComCobranca(
+      user, tracking, 'sms', tracking.customer_phone, texto,
+      () => enviarSms(tracking.customer_phone, texto)
     ));
   }
 

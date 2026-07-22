@@ -46,6 +46,13 @@
     <textarea name="msg_email"><%= user.msg_email %></textarea>
   </div>
 
+  <div class="card">
+    <h2 style="margin-top:0">📱 SMS</h2>
+    <label>Mensagem (curta)</label>
+    <textarea name="msg_sms" id="msg_sms" maxlength="300" style="min-height:80px" oninput="contarSms()"><%= user.msg_sms %></textarea>
+    <p class="hint">SMS é curto e cobrado por parte de <b>160 caracteres</b> (com acento, 70). Evite acentos e deixe curto pra sair mais barato. <span id="sms-count"></span></p>
+  </div>
+
   <button>Salvar mensagens</button>
 </form>
 
@@ -66,6 +73,21 @@
     document.getElementById('wa-text').textContent = txt || ' ';
   }
   renderWaPreview();
+
+  function contarSms() {
+    var el = document.getElementById('msg_sms');
+    if (!el) return;
+    // Estima com as variáveis já preenchidas (o link é longo).
+    var exemplo = el.value
+      .replace('{link}', window.location.origin + '/rastreio/BR-ABC123-4567')
+      .replace('{codigo}', 'BR-ABC123-4567').replace('{nome}', 'João').replace('{loja}', 'Sua Loja').replace('{status}', 'Confirmado');
+    var temAcento = /[^\x00-\x7F]/.test(exemplo);
+    var limite = temAcento ? 70 : 160;
+    var partes = Math.max(1, Math.ceil(exemplo.length / limite));
+    document.getElementById('sms-count').textContent =
+      '≈ ' + exemplo.length + ' caracteres = ' + partes + ' SMS' + (temAcento ? ' (tem acento → limite menor)' : '');
+  }
+  contarSms();
 </script>
 
 <%- include('partials/shell_end') %>

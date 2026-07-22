@@ -46,6 +46,10 @@
       <input type="checkbox" name="notify_email" value="1" style="width:auto" <%= user.notify_email ? 'checked' : '' %>>
       <span>✉️ <b>E-mail</b> — <%= billing.formatBRL(billing.PRECOS.email) %> por mensagem</span>
     </label>
+    <label style="display:flex; align-items:center; gap:10px; margin:12px 0 0; cursor:<%= smsAtivo ? 'pointer' : 'not-allowed' %>; opacity:<%= smsAtivo ? '1' : '.55' %>">
+      <input type="checkbox" name="notify_sms" value="1" style="width:auto" <%= user.notify_sms ? 'checked' : '' %> <%= smsAtivo ? '' : 'disabled' %>>
+      <span>📱 <b>SMS</b> — <%= billing.formatBRL(billing.PRECOS.sms) %> por mensagem <% if (!smsAtivo) { %><span class="sub">(indisponível no momento)</span><% } %></span>
+    </label>
   </div>
 
   <div class="card" style="display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap">

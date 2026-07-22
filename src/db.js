@@ -116,6 +116,13 @@ if (!userCols.includes('notify_whatsapp')) {
 if (!userCols.includes('notify_email')) {
   db.exec('ALTER TABLE users ADD COLUMN notify_email INTEGER NOT NULL DEFAULT 1');
 }
+// Canal SMS (desligado por padrão, pois tem custo por mensagem).
+if (!userCols.includes('notify_sms')) {
+  db.exec('ALTER TABLE users ADD COLUMN notify_sms INTEGER NOT NULL DEFAULT 0');
+}
+if (!userCols.includes('msg_sms')) {
+  db.exec("ALTER TABLE users ADD COLUMN msg_sms TEXT DEFAULT 'Pedido confirmado! Rastreie seu pedido {codigo} em: {link}'");
+}
 // Nome do arquivo da logo da loja (aparece na página de rastreio).
 if (!userCols.includes('logo_file')) {
   db.exec("ALTER TABLE users ADD COLUMN logo_file TEXT DEFAULT ''");
